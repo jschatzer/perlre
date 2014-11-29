@@ -8,7 +8,7 @@ but for now it does not support "string-interpolation" in regex or substitution.
 
 PERLRE supports: 
 - perl's g modifier
-- string- and backslash-interpolation with interpol
+- string- and backslash-interpolation with cl-interpol
 - normal variable substitution or function calls like format
 - suppressing interpolation, using single quotes - m'' or s''' - as in perl
 
