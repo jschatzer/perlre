@@ -6,7 +6,7 @@ It supports perl's imsx modifiers and arbitrary delimiters,
 but for now it does not support "string-interpolation" in regex or substitution.
 
 
-CL-PERLRE supports: 
+PERLRE supports: 
 - perl's g modifier
 - string- and backslash-interpolation with interpol
 - normal variable substitution or function calls like format
