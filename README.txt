@@ -36,7 +36,7 @@ Examples:
   (#~m/x/ "hanna"))
 
 (let ((x "an")
-			(y "AN"))
+      (y "AN"))
  (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna"))
 
 
@@ -46,7 +46,7 @@ Examples:
  (#~s/#?"${x}"/#?"\\1 \n\n \\2"/ "hanna"))
 
 (let ((x "(n)(n)")
-			(y "HANNA"))
+      (y "HANNA"))
  (#~s/#?"${x}"/#?"\\1 \n ${y} \n \\2"/ "hanna"))
 
 (cl-interpol:disable-interpol-syntax)
