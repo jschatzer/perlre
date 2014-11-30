@@ -1,8 +1,8 @@
 perlre
 ======
 
-# perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support
-
+##### perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support
+###### idea and code from Doug Hoyte's book [Let-Over-Lambda](http://letoverlambda.com) and quicklisp-package let-over-lambda
 
 With LET-OVER-LAMBDA you can do:
 - (#~m/regex/imsx string) or (#~s!regex!substitution!imsx string)
@@ -54,7 +54,8 @@ Examples:
  (#~s/#?"${x}"/#?"\\1 \n ${y} \n \\2"/ "hanna"))
 
 (cl-interpol:disable-interpol-syntax)
-```
+
+
 ------------
 To have interpolation in let-over-lambda's if-match and when-match, complicated ...
 ------------
@@ -62,31 +63,36 @@ order of pkg-loading is important:
 1. let-over-lambda to get if-match and when-match
 2. perlre to overwrite let-over-lambda's m// operator
 
-```
 (ql:quickload '(let-over-lambda perlre))
 
-(lol:if-match (#~m'a(b)c'i "ABC") $1)
+(lol:if-match (#~m'a(b)c'i "ABC") 
+ $1)
 
 (lol:when-match (#~m'a(b)c(de)'i "ABCde")
  (print $1)
  (print $2)
  (format t "~&~a - ~a" $2 $1))
 
-(lol:if-match (#~m/"a(b)c"/i "ABC") $1)
+(lol:if-match (#~m/"a(b)c"/i "ABC") 
+ $1)
 
 (let ((x "(C)"))
-  (lol:if-match (#~m/x/ "ABC") $1))
+ (lol:if-match (#~m/x/ "ABC") 
+	$1))
 
 (let ((x "(C)"))
- (lol:if-match (#~m/(format nil "AB~a" x)/ "ABC") $1))
+ (lol:if-match (#~m/(format nil "AB~a" x)/ "ABC") 
+	$1))
 
 (cl-interpol:enable-interpol-syntax)
 
 (let ((x "C"))
-  (lol:if-match (#~m/#?"(${x})"/ "ABC") $1))
+ (lol:if-match (#~m/#?"(${x})"/ "ABC") 
+	$1))
 
 (let ((x "C"))
-  (o:ifmatch (#~m/#?"B(${x})"/ "ABC") $1))
+ (o:ifmatch (#~m/#?"B(${x})"/ "ABC") 
+	$1))
 
 (cl-interpol:disable-interpol-syntax)
 ```
