@@ -19,13 +19,13 @@ PERLRE supports:
 
 For now interpolation comes with a cost, here are some restrictions:
 - regular expressions and substitutions must be explicit strings, i.e. double quoted or cl-interpol strings
-- need of 2 backslashes, \\& \\` \\1 \\2 ... as cl-ppcre
+- need of 2 backslashes, `\\& \\' \\1 \\2`... as cl-ppcre
 - you must enable/disable cl-interpol-syntax
 
 ------------
 Examples:
 ------------
-`
+```
 (#~s'(A)'*\1*'i "hanna")
 
 (#~s'(A)'*\1*'ig "hanna")
@@ -54,7 +54,7 @@ Examples:
  (#~s/#?"${x}"/#?"\\1 \n ${y} \n \\2"/ "hanna"))
 
 (cl-interpol:disable-interpol-syntax)
-`
+```
 ------------
 To have interpolation in let-over-lambda's if-match and when-match, complicated ...
 ------------
@@ -62,7 +62,7 @@ order of pkg-loading is important:
 1. let-over-lambda to get if-match and when-match
 2. perlre to overwrite let-over-lambda's m// operator
 
-`
+```
 (ql:quickload '(let-over-lambda perlre))
 
 (lol:if-match (#~m'a(b)c'i "ABC") $1)
@@ -89,4 +89,4 @@ order of pkg-loading is important:
   (o:ifmatch (#~m/#?"B(${x})"/ "ABC") $1))
 
 (cl-interpol:disable-interpol-syntax)
-`
+```
