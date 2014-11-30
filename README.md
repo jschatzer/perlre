@@ -1,13 +1,13 @@
 perlre
 ======
 
-perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support
+# perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support
 
 
 With LET-OVER-LAMBDA you can do:
-(#~m/regex/imsx string) or (#~s!regex!substitution!imsx string)
-It supports perl's imsx modifiers and arbitrary delimiters, 
-but for now it does not support "string-interpolation" in regex or substitution.
+- (#~m/regex/imsx string) or (#~s!regex!substitution!imsx string)
+- It supports perl's imsx modifiers and arbitrary delimiters, 
+- but for now it does not support "string-interpolation" in regex or substitution.
 
 
 PERLRE supports: 
@@ -25,7 +25,7 @@ For now interpolation comes with a cost, here are some restrictions:
 ------------
 Examples:
 ------------
-
+`
 (#~s'(A)'*\1*'i "hanna")
 
 (#~s'(A)'*\1*'ig "hanna")
@@ -54,14 +54,15 @@ Examples:
  (#~s/#?"${x}"/#?"\\1 \n ${y} \n \\2"/ "hanna"))
 
 (cl-interpol:disable-interpol-syntax)
-
+`
 ------------
 To have interpolation in let-over-lambda's if-match and when-match, complicated ...
 ------------
-; order of pkg-loading is important: 
-; 1. let-over-lambda to get if-match and when-match
-; 2. perlre to overwrite let-over-lambda's m// operator
+order of pkg-loading is important: 
+1. let-over-lambda to get if-match and when-match
+2. perlre to overwrite let-over-lambda's m// operator
 
+`
 (ql:quickload '(let-over-lambda perlre))
 
 (lol:if-match (#~m'a(b)c'i "ABC") $1)
@@ -88,3 +89,4 @@ To have interpolation in let-over-lambda's if-match and when-match, complicated 
   (o:ifmatch (#~m/#?"B(${x})"/ "ABC") $1))
 
 (cl-interpol:disable-interpol-syntax)
+`
