@@ -1,16 +1,16 @@
 perlre
 ======
 
-`perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support`
+*perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support*
 ###### idea and code from Doug Hoyte's book [Let Over Lambda](http://letoverlambda.com) and quicklisp-package let-over-lambda
 
-With *let-over-lambda* you can do:
+With **let-over-lambda** you can do:
 - (#~m/regex/imsx string) or (#~s!regex!substitution!imsx string)
 - It supports perl's imsx modifiers and arbitrary delimiters, 
 - but for now it does not support "string-interpolation" in regex or substitution.
 
 
-*perlre* supports: 
+**perlre** supports: 
 - perl's g modifier
 - string- and backslash-interpolation with cl-interpol
 - normal variable substitution or function calls like format
@@ -36,10 +36,10 @@ For now interpolation comes with a cost, here are some restrictions:
 ; variable or function call
 
 (let ((x "an")) 
-  (#~m/x/ "hanna"))
+ (#~m/x/ "hanna"))
 
 (let ((x "an")
-      (y "AN"))
+			(y "AN"))
  (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna"))
 
 
