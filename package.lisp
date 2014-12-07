@@ -2,5 +2,6 @@
 
 (defpackage #:perlre
   (:nicknames pre)
-  (:use #:cl))
+  (:use #:cl)
+  (:export ifmatch whenmatch))
 

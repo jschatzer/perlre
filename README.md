@@ -94,4 +94,17 @@ order of pkg-loading is important:
 	$1))
 
 (cl-interpol:disable-interpol-syntax)
+
+------------
+ifmatch and whenmatch, supporting also $& |$`| |$'| but with a cost for now:
+- bars are necessary in some symbols: |$`| |$'|
+- for now the number of registers must be included manually as the 1 argument in ifmatch and whenmatch
+------------
+
+(perlre:ifmatch 2 (#~m/"(b(c)d)e"/ "abcdef") (list |$`| $& |$`| $1 $2))
+
+(perlre:whenmatch 4 (#~m/"(b)(c)(d)(e)"/ "abcdef") 
+  (print |$`|) 
+  (print $2) 
+  (print $4))
 ```
