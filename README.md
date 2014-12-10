@@ -107,4 +107,29 @@ ifmatch and whenmatch, supporting also $& |$`| |$'| but with a cost for now:
   (print |$`|) 
   (print $2) 
   (print $4))
+
+------------
+ifmatch and whenmatch are now better
+------------
+
+(ql:quickload :perlre)
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") perlre::$&)
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") pre::$\`)
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") pre::$&)
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") pre::$\')
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") $1)
+
+(perlre:ifmatch (#~m/"(b(c)d)e"/ "abcdef") (list pre::$\` pre::$& pre::$\` $1 $2))
+
+(perlre:ifmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") (list pre::$\` pre::$& pre::$\` $1 $2 $3 $4))
+
+(perlre:whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
+  (print pre::$\`) 
+  (print $2) 
+  (print $4))
 ```

@@ -52,27 +52,26 @@
         (#\s (subst-mode-ppcre-lambda-form (segment-reader stm (read-char stm) 2) (mods stm)))
         (t (error "Unknown #~~ mode character"))))))
 
-(lol:defmacro! ifmatch (nreg (test str) conseq &optional altern) ;nreg for number-of-registers
-  #"for now the number of registers must be inserted manually
-  (ifmatch 2 (#~m/"(b(c)d)e"/ "abcdef") (list |$`| $& |$`| $1 $2))"#
-  (let ((la nreg))  ; la for length-array
-    `(let ((,g!s ,str)) ; s for string
-       (multiple-value-bind (,g!ms ,g!ra) (,test ,g!s) (declare (ignorable ,g!ra)) ; ms match-string, ra register-array
-         (if (plusp (length ,g!ms)) ; ppcre:scan-to-strings returns "" if there is no match
-           (let (($& ,g!ms)
-                 (|$`| (subseq ,g!s 0 (search ,g!ms ,g!s :test #'string= :from-end t)))       ; $b before-match
-                 (|$'| (subseq ,g!s (+ (length ,g!ms) (search ,g!ms ,g!s :test #'string=))))) ; $a after-match
-             (declare (ignorable |$`| $& |$'|)) 
-             (let ,(mapcar #`(,(lol:symb "$" a1) (aref ,g!ra ,(1- a1))) (loop for i from 1 to la collect i))
-               (declare (ignorable ,@(mapcar #`,(lol:symb "$" a1) (loop for i from 1 to la collect i))))
-               ,conseq))
-           ,altern)))))
+(lol:defmacro! ifmatch ((test str) conseq &optional altern)
+  #"(ifmatch (#~m/"(b(c)d)e"/ "abcdef") (list |$`| $& |$`| $1 $2))"#
+  (let ((dollars (remove-duplicates
+                   (remove-if-not #'lol:dollar-symbol-p
+                                  (lol:flatten (lol:prune-if-match-bodies-from-sub-lexical-scope conseq))))))
+    (let ((top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))      ; la for length array, ev rename top
+      `(let ((,g!s ,str)) ; s for string
+         (multiple-value-bind (,g!ms ,g!ra) (,test ,g!s) (declare (ignorable ,g!ra)) ; ms match-string, ra register-array
+           (if (plusp (length ,g!ms)) ; ppcre:scan-to-strings returns "" if there is no match
+             (destructuring-bind ($\` $& $\') (ppcre:split (format nil "(~a)" ,g!ms) ,g!s :with-registers-p t :limit 3)
+               (declare (ignorable $\` $& $\'))
+               (let ,#1=(mapcar #`(,(lol:symb "$" a1) (aref ,g!ra ,(1- a1))) (loop for i from 1 to top collect i))
+                 (declare (ignorable ,@(mapcar #'car #1#)))
+                 ,conseq))
+             ,altern))))))
 
-(defmacro whenmatch (nreg (test str) conseq &rest more-conseq)
-  #"for now the number of registers must be inserted manually
-  (whenmatch 4 (#~m/"(b)(c)(d)(e)"/ "abcdef") 
+(defmacro whenmatch ((test str) conseq &rest more-conseq)
+  #"(whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
     (print |$`|) 
     (print $2) 
     (print $4))"#
-  `(ifmatch ,nreg (,test ,str)
+  `(ifmatch (,test ,str)
      (progn ,conseq ,@more-conseq)))
