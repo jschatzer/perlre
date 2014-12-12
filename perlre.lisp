@@ -52,18 +52,25 @@
         (#\s (subst-mode-ppcre-lambda-form (segment-reader stm (read-char stm) 2) (mods stm)))
         (t (error "Unknown #~~ mode character"))))))
 
+(defun xx (l i)
+  (case i
+    (\` (first l))
+    (& (second l))
+    (\' (third l))))
+
 (lol:defmacro! ifmatch ((test str) conseq &optional altern)
   #"(ifmatch (#~m/"(b(c)d)e"/ "abcdef") (list |$`| $& |$`| $1 $2))"#
   (let ((dollars (remove-duplicates
                    (remove-if-not #'lol:dollar-symbol-p
                                   (lol:flatten (lol:prune-if-match-bodies-from-sub-lexical-scope conseq))))))
-    (let ((top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))      ; la for length array, ev rename top
+    (let ((top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
       `(let ((,g!s ,str)) ; s for string
-         (multiple-value-bind (,g!ms ,g!ra) (,test ,g!s) (declare (ignorable ,g!ra)) ; ms match-string, ra register-array
+         (multiple-value-bind (,g!ms ,g!ra) (,test ,g!s) (declare (ignorable ,g!ra))
            (if (plusp (length ,g!ms)) ; ppcre:scan-to-strings returns "" if there is no match
-             (destructuring-bind ($\` $& $\') (ppcre:split (format nil "(~a)" ,g!ms) ,g!s :with-registers-p t :limit 3)
-               (declare (ignorable $\` $& $\'))
-               (let ,#1=(mapcar #`(,(lol:symb "$" a1) (aref ,g!ra ,(1- a1))) (loop for i from 1 to top collect i))
+             (let ((,g!lst (ppcre:split (format nil "(~a)" ,g!ms) ,g!s :with-registers-p t :limit 3)))
+               (let ,#1=(append 
+                          (mapcar #`(,(lol:symb "$" a1) (xx ,g!lst ',a1)) '(\` & \'))
+                          (mapcar #`(,(lol:symb "$" a1) (aref ,g!ra ,(1- a1))) (loop for i from 1 to top collect i)))
                  (declare (ignorable ,@(mapcar #'car #1#)))
                  ,conseq))
              ,altern))))))

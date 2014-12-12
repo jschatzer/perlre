@@ -132,4 +132,15 @@ ifmatch and whenmatch are now better
   (print pre::$\`) 
   (print $2) 
   (print $4))
+
+------------
+ifmatch and whenmatch --- now you can do:
+------------
+
+(perlre:ifmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") (list $\` $& $\` $1 $2 $3 $4))
+
+(perlre:whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
+  (print $\`) 
+  (print $2) 
+  (print $4))
 ```
