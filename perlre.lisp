@@ -58,22 +58,17 @@
     (& (second l))
     (\' (third l))))
 
+; for now without gensyms, 15.12.14
 (lol:defmacro! ifmatch ((test str) conseq &optional altern)
-  #"(ifmatch (#~m/"(b(c)d)e"/ "abcdef") (list |$`| $& |$`| $1 $2))"#
-  (let ((dollars (remove-duplicates
-                   (remove-if-not #'lol:dollar-symbol-p
-                                  (lol:flatten (lol:prune-if-match-bodies-from-sub-lexical-scope conseq))))))
-    (let ((top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
-      `(let ((,g!s ,str)) ; s for string
-         (multiple-value-bind (,g!ms ,g!ra) (,test ,g!s) (declare (ignorable ,g!ra))
-           (if (plusp (length ,g!ms)) ; ppcre:scan-to-strings returns "" if there is no match
-             (let ((,g!lst (ppcre:split (format nil "(~a)" ,g!ms) ,g!s :with-registers-p t :limit 3)))
-               (let ,#1=(append 
-                          (mapcar #`(,(lol:symb "$" a1) (xx ,g!lst ',a1)) '(\` & \'))
-                          (mapcar #`(,(lol:symb "$" a1) (aref ,g!ra ,(1- a1))) (loop for i from 1 to top collect i)))
-                 (declare (ignorable ,@(mapcar #'car #1#)))
-                 ,conseq))
-             ,altern))))))
+  `(multiple-value-bind (m a) (,test ,str) ; for match and array
+     (eval `(if (plusp (length ,m))
+              (let ((ml (ppcre:split (format nil "(~a)" ,m) ,',str :with-registers-p t :limit 3))) ;for match-list
+                (let ,#1=(append 
+                           (mapcar #`(,(lol:symb "$" a1) (xx ml ',a1)) '(\` & \'))
+                           (mapcar #`(,(lol:symb "$" a1) (aref ,a ,(1- a1))) (loop for i from 1 to (length a) collect i)))
+                  (declare (ignorable ,@(mapcar #'car #1#)))
+                  ,',conseq))
+              ,',altern))))
 
 (defmacro whenmatch ((test str) conseq &rest more-conseq)
   #"(whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
