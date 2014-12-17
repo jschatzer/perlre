@@ -14,8 +14,8 @@ With **let-over-lambda** you can do:
 - perl's g modifier
 - string- and backslash-interpolation with cl-interpol
 - normal variable substitution or function calls like format
-- suppressing interpolation, using single quotes - `m''` or `s'''` - as in perl
-- ifmatch and whenmatch with `$1, $2 ... and $``, $& $' $\'  - note the Backslash with ` and '
+- suppressing interpolation, using single quotes `m''` or `s'''` as in perl
+- ifmatch and whenmatch with ```$1, $2 ... $\` $& $\'``` note the Backslash in symbols with quotes
 
 
 For now interpolation comes with a cost, here are some restrictions:
@@ -36,7 +36,7 @@ For now interpolation comes with a cost, here are some restrictions:
 (#~s%"(a)"%"*\\1*"%g "hanna")   ; => "h*a*nn*a*"
 
 (perlre:ifmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
- (list $\` $& $\' $1 $2 $3 $4))                  ; => ("a" "bcde" "f" "b" "c" "d" "e")
+ (list $\` $& $\' $1 $2 $3 $4)) ; => ("a" "bcde" "f" "b" "c" "d" "e")
 
 (perlre:whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
   (print $\`) 
@@ -50,13 +50,13 @@ variable or function
 
 (let ((x "an")
 			(y "AN"))
- (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna"))    ; => "hANna"
+ (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna")) ; => "hANna"
 
 (let ((x "an")) 
- (pre:ifmatch (#~m/x/ "hanna") $&))                         ; => "an"
+ (pre:ifmatch (#~m/x/ "hanna") $&))                      ; => "an"
 
 (let ((x "a(n)n")) 
- (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1)))       ; => ("h" "ann" "a" "n")
+ (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1))  ; => ("h" "ann" "a" "n")
 
 
 ------------
