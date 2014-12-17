@@ -15,7 +15,7 @@ With **let-over-lambda** you can do:
 - string- and backslash-interpolation with cl-interpol
 - normal variable substitution or function calls like format
 - suppressing interpolation, using single quotes `m''` or `s'''` as in perl
-- ifmatch and whenmatch with ```$1, $2 ... $\` $& $\'``` note the Backslash in symbols with quotes
+- ifmatch and whenmatch with ```$\` $& $\' $1, $2 ...``` note the Backslash in symbols with quotes
 
 
 For now interpolation comes with a cost, here are some restrictions:
@@ -49,14 +49,14 @@ variable or function
 ------------
 
 (let ((x "an")
-			(y "AN"))
+     (y "AN"))
  (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna")) ; => "hANna"
 
 (let ((x "an")) 
  (pre:ifmatch (#~m/x/ "hanna") $&))                      ; => "an"
 
 (let ((x "a(n)n")) 
- (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1))  ; => ("h" "ann" "a" "n")
+ (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1))     ; => ("h" "ann" "a" "n")
 
 
 ------------
