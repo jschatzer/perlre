@@ -15,7 +15,7 @@ With **let-over-lambda** you can do:
 - string- and backslash-interpolation with cl-interpol
 - normal variable substitution or function calls like format
 - suppressing interpolation, using single quotes `m''` or `s'''` as in perl
-- ifmatch and whenmatch with ```$\` $& $\' $1, $2 ...``` note the Backslash in symbols with quotes
+- ifmatch and whenmatch with ```$\` $& $\' $1, $2 ...``` note backslash in symbols with quotes
 
 
 For now interpolation comes with a cost, here are some restrictions:
@@ -26,6 +26,8 @@ For now interpolation comes with a cost, here are some restrictions:
 #### Examples:
 
 ```
+
+(ql:quickload :perlre)
 
 (#~s'(A)'*\1*'i "hanna")        ; => "h*a*nna"
 
@@ -56,7 +58,7 @@ variable or function
  (pre:ifmatch (#~m/x/ "hanna") $&))                      ; => "an"
 
 (let ((x "a(n)n")) 
- (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1))     ; => ("h" "ann" "a" "n")
+ (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1)))     ; => ("h" "ann" "a" "n")
 
 
 ------------
