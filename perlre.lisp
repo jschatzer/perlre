@@ -1,9 +1,10 @@
 ;;;; perlre.lisp
 ;-----------------------------------------------------------------------------
 ;;; idea and code from Doug Hoyte's book and quicklisp-package Let-Over-Lambda
-;;; http://letoverlambda.com 
+;;; http://letoverlambda.com
 ;-----------------------------------------------------------------------------
 (in-package #:perlre)
+(named-readtables:in-readtable lol:lol-syntax)
 
 ; 24.11.2014
 ;;; http://code.activestate.com/lists/perl5-porters/182367/   ; /n  to not interpolate  <--------
@@ -17,10 +18,10 @@
         (push curr chars))
       (if (char= ch #\')
         (cons (coerce (nreverse chars) 'string) (segment-reader strm ch (1- n)))
-        (cons (with-input-from-string (s (coerce (nreverse chars) 'string)) (read s)) 
+        (cons (with-input-from-string (s (coerce (nreverse chars) 'string)) (read s))
               (segment-reader strm ch (1- n)))))))
 
-(define-symbol-macro 
+(define-symbol-macro
   regex
   `(if (zerop (length ,g!mods))
      (car ,g!args)
@@ -47,7 +48,7 @@
   (lambda (stm c n) (declare (ignore c n))
     "dispatch function for #~"
     (let ((mode-char (read-char stm)))
-      (case mode-char 
+      (case mode-char
         (#\m (match-mode-ppcre-lambda-form (segment-reader stm (read-char stm) 1) (mods stm)))
         (#\s (subst-mode-ppcre-lambda-form (segment-reader stm (read-char stm) 2) (mods stm)))
         (t (error "Unknown #~~ mode character"))))))
@@ -63,7 +64,7 @@
   `(multiple-value-bind (m a) (,test ,str) ; for match and array
      (eval `(if (plusp (length ,m))
               (let ((ml (ppcre:split (format nil "(~a)" ,m) ,',str :with-registers-p t :limit 3))) ;for match-list
-                (let ,#1=(append 
+                (let ,#1=(append
                            (mapcar #`(,(lol:symb "$" a1) (xx ml ',a1)) '(\` & \'))
                            (mapcar #`(,(lol:symb "$" a1) (aref ,a ,(1- a1))) (loop for i from 1 to (length a) collect i)))
                   (declare (ignorable ,@(mapcar #'car #1#)))
@@ -71,9 +72,9 @@
               ,',altern))))
 
 (defmacro whenmatch ((test str) conseq &rest more-conseq)
-  #"(whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
-    (print |$`|) 
-    (print $2) 
+  #"(whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef")
+    (print |$`|)
+    (print $2)
     (print $4))"#
   `(ifmatch (,test ,str)
      (progn ,conseq ,@more-conseq)))
