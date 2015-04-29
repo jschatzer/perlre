@@ -5,6 +5,12 @@
 ;-----------------------------------------------------------------------------
 (in-package #:perlre)
 
+; 29.4.2015 with new let-over-lambda version
+; from EuAndreh, thank you very much
+; https://github.com/jschatzer/perlre/pull/2  
+(named-readtables:in-readtable lol:lol-syntax)
+
+; s string stream, m match, a array, ml match-list
 ; 24.11.2014
 ;;; http://code.activestate.com/lists/perl5-porters/182367/   ; /n  to not interpolate  <--------
 ;;; m//n or mq// or ... ? to preclude interpolation, (q for quote)
@@ -52,17 +58,13 @@
         (#\s (subst-mode-ppcre-lambda-form (segment-reader stm (read-char stm) 2) (mods stm)))
         (t (error "Unknown #~~ mode character"))))))
 
-(defun xx (l i)
-  (case i
-    (\` (first l))
-    (& (second l))
-    (\' (third l))))
+(defun xx (l i) (case i (\` (first l)) (& (second l)) (\' (third l))))
 
 ; for now without gensyms, 15.12.14
 (lol:defmacro! ifmatch ((test str) conseq &optional altern)
-  `(multiple-value-bind (m a) (,test ,str) ; for match and array
+  `(multiple-value-bind (m a) (,test ,str) ; m match, a array
      (eval `(if (plusp (length ,m))
-              (let ((ml (ppcre:split (format nil "(~a)" ,m) ,',str :with-registers-p t :limit 3))) ;for match-list
+              (let ((ml (ppcre:split (format nil "(~a)" ,m) ,',str :with-registers-p t :limit 3))) ; ml match-list
                 (let ,#1=(append 
                            (mapcar #`(,(lol:symb "$" a1) (xx ml ',a1)) '(\` & \'))
                            (mapcar #`(,(lol:symb "$" a1) (aref ,a ,(1- a1))) (loop for i from 1 to (length a) collect i)))
@@ -70,10 +72,4 @@
                   ,',conseq))
               ,',altern))))
 
-(defmacro whenmatch ((test str) conseq &rest more-conseq)
-  #"(whenmatch (#~m/"(b)(c)(d)(e)"/ "abcdef") 
-    (print |$`|) 
-    (print $2) 
-    (print $4))"#
-  `(ifmatch (,test ,str)
-     (progn ,conseq ,@more-conseq)))
+(defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))

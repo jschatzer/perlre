@@ -51,14 +51,15 @@ variable or function
 ------------
 
 (let ((x "an")
-     (y "AN"))
+      (y "AN"))
  (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna")) ; => "hANna"
 
 (let ((x "an")) 
  (pre:ifmatch (#~m/x/ "hanna") $&))                      ; => "an"
 
 (let ((x "a(n)n")) 
- (pre:ifmatch (#~m/x/ "hanna") (list $\` $& $\' $1)))     ; => ("h" "ann" "a" "n")
+ (pre:ifmatch (#~m/x/ "hanna") 
+	(list $\` $& $\' $1)))                    ; => ("h" "ann" "a" "n")
 
 
 ------------
@@ -75,7 +76,8 @@ interpolation with cl-interpol
  (#~s/#?"${x}"/#?"\\1 \n ${y} \n \\2"/ "hanna"))
 
 (let ((x "an")) 
- (pre:ifmatch (#~m/#?"(${x})"/ "hanna") (list $& $1)))
+ (pre:ifmatch (#~m/#?"(${x})"/ "hanna") 
+	(list $& $1)))
 
 (cl-interpol:disable-interpol-syntax)
 
