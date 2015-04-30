@@ -25,9 +25,12 @@ For now interpolation comes with a cost, here are some restrictions:
 
 #### Examples:
 
-```
 
+```
 (ql:quickload :perlre)
+
+;29.4.2015 with new version of let-over-lambda
+(named-readtables:in-readtable lol:lol-syntax)
 
 (#~s'(A)'*\1*'i "hanna")        ; => "h*a*nna"
 
