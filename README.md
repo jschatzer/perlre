@@ -84,4 +84,23 @@ interpolation with cl-interpol
 
 (cl-interpol:disable-interpol-syntax)
 
+------------
+with another quoting delimiter
+------------
+
+(#~s'(A)'*\1*'i "hanna")        ; => "h*a*nna"
+
+(setf perlre::qd #\§)
+
+(#~s§(A)§'\1'§i "hanna")        ; => "h'a'nna"
+
+
+(setf perlre::qd #\') ; reset to default
+
+```
+
+#### There is a test-file:
+
+```
+(prove:run #P"path-to/test.lisp")
 ```
