@@ -1,0 +1,12 @@
+;;; log.txt
+
+PERLRE
+
+29.4.2015 named-readtables because of new let-over-lambda version
+          thanks to EuAndreh, https://github.com/jschatzer/perlre/pull/2  
+          (named-readtables:in-readtable lol:lol-syntax)
+
+15.5.2015 alternate quoting delimiter, a first try
+
+20.5.2015 removed named-readtables to get it simple for quick drafting
+          pandoric-eval
