@@ -103,7 +103,7 @@ with another quoting delimiter
 
 ```
 
-#### There is a test-file:
+#### There is a test-file with more examples:
 
 ```
 (prove:run #P"path-to/test.lisp")

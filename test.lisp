@@ -16,9 +16,9 @@ s/r/s/ str
           - (let ((x "abc")) (#~s/x/"123"/ abc))
           - (#~m/(princ-to-string 'hello)/ (string-upcase "hello"))
 
-2) if-match -- scope
-3) quoting delimiter should be not global and possibly integrated
-4) interpolating variables should not need explicit enabling
+2) if-match -- scope of $1 $& etc, nesting
+3) quoting delimiter should be not global and possibly integrated, todo
+4) interpolating variables should not need explicit enabling, todo
 ===========================================================================================|#
 
 ;----------------------------------------------
@@ -144,7 +144,7 @@ s/r/s/ str
 (finalize)
 
 ;----------------------------------------------
-; 4) ifmatch whenmatch - gehen mit warning, undefined variable: $1
+; 4) ifmatch whenmatch - warning, undefined variable: $1, solved
 ;----------------------------------------------
 (plan 3)
 
@@ -168,26 +168,14 @@ s/r/s/ str
     (list $1 'char)
     stg))
 "b1")
+
 (finalize)
 
 ;----------------------------------------------
-; 5) ifmatch whenmatch, these are NOT ok, make them go
+; 5) ifmatch whenmatch, nesting problem, solved
 ;----------------------------------------------
-#|
 (plan 1)
-
 ; example from abc  <------
-
-(is
-(let ((stg "b1"))
-  (ifmatch (#~m'(a)' stg)
-    (list $1 'char)
-    (ifmatch (#~m'(1)' stg)
-      (list $1 'number))))   
-'("1" NUMBER))
-
-;nesting geht nicht
-; error, illegal function call
 (is
 (let ((stg "b1"))
   (ifmatch (#~m'(x)' stg)
@@ -222,38 +210,5 @@ s/r/s/ str
 (is (ifmatch (#~s's'x' "stg") "hello") "hello")
 
 (is (let ((stg (format nil "~a" "a"))) (ifmatch (#~m'(a)' stg) $1)) "a")
-
-(finalize)
-|#
-
-
-;----------------------------------------------
-; 6) for nesting use lol:if-match lol:when-match ###########################
-;----------------------------------------------
-(plan 4)
-(named-readtables:in-readtable lol:lol-syntax)
-
-(is
-(let ((stg "b1"))
-  (lol:if-match (#~m'(a)' stg)
-    (list $1 'char)
-    (lol:if-match (#~m'(1)' stg)
-      (list $1 'number))))   
-'("1" NUMBER))
-
-;nesting is ok
-(is
-  (let ((stg "b1"))
-    (lol:if-match (#~m'(a)' stg)
-      (list $1 'char)
-      (lol:if-match (#~m'(c)' stg)
-        (list $1 'char2)
-        (lol:if-match (#~m'(1)' stg)
-          (list $1 'number)))))   
-    '("1" NUMBER))
-
-(is (lol:if-match (#~s's'x' "stg") "hello") "hello")
-
-(is (let ((stg (format nil "~a" "a"))) (lol:if-match (#~m'(a)' stg) $1)) "a")
 
 (finalize)
