@@ -41,17 +41,16 @@
       (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
       (t (error "Unknown #~~ mode character")))))
 
-(defmacro ifmatch ((test stg) conseq &optional altern)
-  `(let ((s ,stg))
-     (multiple-value-bind (m a) (,test s)
-       (lol:pandoric-eval (a)
-         `(if (plusp (length ,m))
-            (let ((ml (ppcre:split (format nil "(~a)" ,m) ,s :with-registers-p t :limit 3)))
-              (let ,#1=(append 
-                         (mapcar (lambda (a1) `(,(lol:symb "$" a1) (xx ml ',a1))) '(\` & \'))
-                         (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref ,a (1- ,a1)))) (loop for i from 1 to (length a) collect i)))
-                (declare (ignorable ,@(mapcar #'car #1#)))
-                ,',conseq))
-            ,',altern)))))
+(defmacro ifmatch ((test s) conseq &optional altern)
+  `(multiple-value-bind (m a) (,test ,s)
+     (lol:pandoric-eval (a)
+       `(if ,m
+          (let ((ml (ppcre:split (format nil "(~a)" ,m) ,,s :with-registers-p t :limit 3)))
+            (let ,#1=(append 
+                       (mapcar (lambda (a1) `(,(lol:symb "$" a1) (xx ml ',a1))) '(\` & \'))
+                       (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref ,a (1- ,a1)))) (loop for i from 1 to (length a) collect i)))
+              (declare (ignorable ,@(mapcar #'car #1#))) ; to supress style-warnings
+              ,',conseq))
+          ,,altern))))
 
-(defmacro whenmatch ((test stg) &rest conseq) `(ifmatch (,test ,stg) (progn ,@conseq)))
+(defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
