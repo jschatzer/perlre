@@ -212,3 +212,85 @@ s/r/s/ str
 (is (let ((stg (format nil "~a" "a"))) (ifmatch (#~m'(a)' stg) $1)) "a")
 
 (finalize)
+
+
+(plan 6)
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(b)' stg)
+               $1)) "b")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(b)' stg)
+             (#~s/$1/"a"/ stg))) "a1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(b)' stg)
+      (ifmatch (#~m/(format nil "(~a)" $1)/ stg)
+               $1))) "b")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a)" $1)/ stg)
+               $1))) "b")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a1)" $1)/ stg)
+               $1))) "b1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a\\d)" $1)/ stg)
+               $1))) "b1")
+
+(finalize)
+
+#|
+;not ok
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a)(\\d)" $1)/ stg)
+               $2))) "1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a)(1)" $1)/ stg)
+               $2))) "1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(\\~a)(\d)" $1)/ stg)
+               $2))) "1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(b)' stg)
+      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
+               $2))) "1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(^\w)' stg)
+      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
+               $2))) "1")
+
+(is
+  (let ((stg "b1"))
+    (ifmatch (#~m'(b)' stg)
+      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
+               $2))) "1")
+
+|#
+
+
