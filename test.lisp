@@ -252,6 +252,48 @@ s/r/s/ str
 
 (finalize)
 
+
+;look arounds
+(plan 1)
+
+(is
+(let ((s "a1
+         bc
+         ef"))
+  (#~s'(?<!\d)\n\s*''g s)) 
+"a1
+         bcef")
+
+(finalize)
+
+
+; using variables or functions in regex if there are modifiers
+;(plan 3)
+(plan 1)
+
+; ok
+(is
+(let ((y "A"))
+  (#~s/"a"/(format nil "~a" y)/g "hanna")) "hAnnA")
+
+;fail, 9.7.15
+
+#|
+(is
+(let ((x "a")
+      (y "A"))
+  (#~s/(format nil "~a" x)/(format nil "~a" y)/g "hanna")) "hAnnA")
+
+(is
+(let ((x "a")
+      (y "A"))
+  (#~s/x/y/g "hanna")) "hAnnA")
+|#
+
+(finalize)
+
+
+
 #|
 ;not ok
 
@@ -290,6 +332,7 @@ s/r/s/ str
     (ifmatch (#~m'(b)' stg)
       (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
                $2))) "1")
+
 
 |#
 

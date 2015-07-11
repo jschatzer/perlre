@@ -18,7 +18,8 @@
   (if (plusp n)
     (let (chars)
       (do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
-      (if (char= c qd) (cons bar baz) (cons (with-input-from-string (x bar) (read x)) baz)))))
+      ;(if (char= c qd) (cons bar baz) (cons (with-input-from-string (x bar) (read x)) baz)))))
+      (if (char= c qd) (cons bar baz) (cons (read-from-string bar) baz)))))  ; idem? -- tests are ok
 
 (defun mods (s)
   "imsxg modifiers"

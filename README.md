@@ -102,3 +102,19 @@ with another quoting delimiter
 ```
 (prove:run #P"path-to/perlre/test.lisp")
 ```
+
+#### For now not possible:
+
+- using variables or functions in regex if there are modifiers
+  e.g.
+
+```
+(let ((x "an")
+      (y "AN"))
+  (#~s/(format nil "~a" x)/(format nil "~a" y)/g "hanna"))
+
+(let ((x "a")
+      (y "AN"))
+  (#~s/x/y/g "hanna"))
+```
+
