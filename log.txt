@@ -13,3 +13,6 @@ PERLRE
 
 18.6.2015 back to let-over-lambda technique to calculate the number of $1, $2 ... variables.
           all actual tests run o.k
+
+13.7.2015 solved problems with variables/functions in regex if there are modifiers
+

@@ -16,9 +16,10 @@ s/r/s/ str
           - (let ((x "abc")) (#~s/x/"123"/ abc))
           - (#~m/(princ-to-string 'hello)/ (string-upcase "hello"))
 
-2) if-match -- scope of $1 $& etc, nesting
+# 2) if-match -- scope of $1 $& etc, nesting
 3) quoting delimiter should be not global and possibly integrated, todo
 4) interpolating variables should not need explicit enabling, todo
+# 5) var/fnc with modifier problem, solved, 13.7.2015
 ===========================================================================================|#
 
 ;----------------------------------------------
@@ -267,17 +268,15 @@ s/r/s/ str
 (finalize)
 
 
-; using variables or functions in regex if there are modifiers
-(plan 3)
-;(plan 2)
-;(plan 1)
 
+(plan 3)
+; using variables or functions in regex if there are modifiers
 ; ok
 (is
 (let ((y "A"))
   (#~s/"a"/(format nil "~a" y)/g "hanna")) "hAnnA")
 
-;fail, 9.7.15
+;fail, 9.7.15, ok 13.7.15
 
 (is
 (let ((x "a")
@@ -290,49 +289,4 @@ s/r/s/ str
   (#~s/x/y/g "hanna")) "hAnnA")
 
 (finalize)
-
-
-
-#|
-;not ok
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(^\w)' stg)
-      (ifmatch (#~m/(format nil "(~a)(\\d)" $1)/ stg)
-               $2))) "1")
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(^\w)' stg)
-      (ifmatch (#~m/(format nil "(~a)(1)" $1)/ stg)
-               $2))) "1")
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(^\w)' stg)
-      (ifmatch (#~m/(format nil "(\\~a)(\d)" $1)/ stg)
-               $2))) "1")
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(b)' stg)
-      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
-               $2))) "1")
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(^\w)' stg)
-      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
-               $2))) "1")
-
-(is
-  (let ((stg "b1"))
-    (ifmatch (#~m'(b)' stg)
-      (ifmatch (#~m/(format nil "(~a)(.)" $1)/ stg)
-               $2))) "1")
-
-
-|#
-
 
