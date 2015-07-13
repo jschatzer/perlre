@@ -268,8 +268,9 @@ s/r/s/ str
 
 
 ; using variables or functions in regex if there are modifiers
-;(plan 3)
-(plan 1)
+(plan 3)
+;(plan 2)
+;(plan 1)
 
 ; ok
 (is
@@ -278,7 +279,6 @@ s/r/s/ str
 
 ;fail, 9.7.15
 
-#|
 (is
 (let ((x "a")
       (y "A"))
@@ -288,7 +288,6 @@ s/r/s/ str
 (let ((x "a")
       (y "A"))
   (#~s/x/y/g "hanna")) "hAnnA")
-|#
 
 (finalize)
 
