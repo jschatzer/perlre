@@ -95,6 +95,20 @@ with another quoting delimiter
 
 (setf perlre::qd #\') ; reset to default
 
+------------
+e modifier
+------------
+s///e  <-->  (ppcre:regex-replace . . . :simple-calls t)
+
+(defun fn (s r1 r2) 
+	(declare (ignore s))
+	(format nil "~a : ~a " (string-upcase r1) (+ 3 (read-from-string r2))))
+
+(ppcre:regex-replace "a(bc)(3)" "abc3e" #'fn :simple-calls t)
+
+(#~s/"a(bc)(3)"/#'fn/e "abc3e")
+
+
 ```
 
 #### There is a test-file with more examples:
@@ -102,3 +116,5 @@ with another quoting delimiter
 ```
 (prove:run #P"path-to/perlre/test.lisp")
 ```
+
+
