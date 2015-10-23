@@ -346,4 +346,22 @@ s/r/s/ str
 ev test, anschauen
 ;;; in icd diagnosi
 (ppcre:regex-replace (ppcre:quote-meta-chars rmtxt) item "") 
+
+;; 1.10.15    alternat delimiter example   <-------
+The value 8217 is not of type (UNSIGNED-BYTE 8)
+replace all  ’  with '       <----------------
+
+    right single-quote — &rsquo; — ’
+		left single-quote — &lsquo; — ‘
+		right double-quote — &rdquo; — ”
+		left double-quote — &ldquo; — “
+
+(code-char #\’)
+
+(char-code #\’) ; 8217
+
+(#~s'’'x'g "a’b’c")    <--- ad test perlre
+
+(#~s'’'x'g "a’b’c")    <--- ad test perlre
+
 |#
