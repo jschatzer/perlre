@@ -291,7 +291,6 @@ s/r/s/ str
 (finalize)
 
 
-
 (plan 9)
 ;s///e
 
@@ -304,9 +303,9 @@ s/r/s/ str
 	"04")
 
 (is 
-(let ((re '("^(\\d{1,2})\\.$" . pad)))
-	(#~s/(car re)/(cdr re)/e "2."))
-"02")
+	(let ((re '("^(\\d{1,2})\\.$" . pad)))
+		(#~s/(car re)/(cdr re)/e "2."))
+	"02")
 
 (let ((stg "2."))
 	(is 
@@ -321,23 +320,24 @@ s/r/s/ str
 	(format nil "~a : ~a " (string-upcase r1) (+ 3 (read-from-string r2))))
 
 (is
-(ppcre:regex-replace "a(bc)(3)" "abc3e" 'fn :simple-calls t)
-"BC : 6 e")
+	(ppcre:regex-replace "a(bc)(3)" "abc3e" 'fn :simple-calls t)
+	"BC : 6 e")
 (is
-(ppcre:regex-replace "a(bc)(3)" "abc3e" #'fn :simple-calls t)
-"BC : 6 e")
+	(ppcre:regex-replace "a(bc)(3)" "abc3e" #'fn :simple-calls t)
+	"BC : 6 e")
 (is
-(ppcre:regex-replace "a(bc)(3)" "abc3e" (function fn) :simple-calls t)
-"BC : 6 e")
+	(ppcre:regex-replace "a(bc)(3)" "abc3e" (function fn) :simple-calls t)
+	"BC : 6 e")
+
 (is
-(#~s/"a(bc)(3)"/'fn/e "abc3e")
-"BC : 6 e")
+	(#~s/"a(bc)(3)"/'fn/e "abc3e")
+	"BC : 6 e")
 (is
-(#~s/"a(bc)(3)"/#'fn/e "abc3e")
-"BC : 6 e")
+	(#~s/"a(bc)(3)"/#'fn/e "abc3e")
+	"BC : 6 e")
 (is
-(#~s/"a(bc)(3)"/(function fn)/e "abc3e")
-"BC : 6 e")
+	(#~s/"a(bc)(3)"/(function fn)/e "abc3e")
+	"BC : 6 e")
 
 (finalize)
 
