@@ -342,6 +342,14 @@ s/r/s/ str
 (finalize)
 
 
+
+(plan 2)
+
+(is (#~s/"’"/"'"/g "a’b’c") "a'b'c")
+(is (#~s/(code-char 8217)/"'"/g "a’b’c") "a'b'c")
+
+(finalize)
+
 #|
 ev test, anschauen
 ;;; in icd diagnosi

@@ -7,18 +7,18 @@
 (in-package #:perlre)
 
 (defvar qd #\' "quoting-delimiter") 
-(define-symbol-macro bar (coerce (nreverse chars) 'string))
-(define-symbol-macro baz (segment-reader s c (1- n)))
-(define-symbol-macro reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1))
-(defun xx (l i) (case i (\` (first l)) (& (second l)) (\' (third l))))
+;(defun xx (l i) (case i (\` (first l)) (& (second l)) (\' (third l))))
+;(defun xx (l i) (destructuring-bind (a b c) l (case i (\` a) (& b) (\' c))))  ; (pre:ifmatch (#~s's'x' "stg") "hello")   fails <----
+(defun xx (l i) (optima:match l	((list a b c) l (case i (\` a) (& b) (\' c)))))
 
 (defun segment-reader (s c n)
-  "to supress string interpolation use single-quote delimiters, #~s''', #~m'', as in perl, see camelbook page 192,
-  or use an alternate quoting-delimiter doing e.g. (setf perlre::qd #\!)"
-  (if (plusp n)
-    (let (chars)
-      (do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
-      (if (char= c qd) (cons bar baz) (cons (with-input-from-string (x bar) (read x)) baz)))))
+	"to supress string interpolation use single-quote delimiters, #~s''', #~m'', as in perl, see camelbook page 192,
+	or use an alternate quoting-delimiter doing e.g. (setf perlre::qd #\!)"
+	(if (plusp n)
+		(symbol-macrolet ((bar (coerce (nreverse chars) 'string)) (baz (segment-reader s c (1- n))))
+			(let (chars)
+				(do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
+				(if (char= c qd) (cons bar baz) (cons (with-input-from-string (x bar) (read x)) baz))))))
 
 (defun mods (s)
   "imsxg modifiers"
@@ -26,16 +26,17 @@
 
 (lol:defmacro! sub (o!a o!m)
  ``(lambda (,',g!s) 
-		 (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m)) ; ev gensym problems??
-			 (if (string= "" m)
-				 (ppcre:regex-replace a1 ,',g!s a2)
-				 (if (find #\g m)
-					 (if (find #\e m)
-						 (ppcre:regex-replace-all reg ,',g!s a2 :simple-calls t)
-						 (ppcre:regex-replace-all reg ,',g!s a2))
-					 (if (find #\e m)
-						 (ppcre:regex-replace reg ,',g!s a2 :simple-calls t)
-						 (ppcre:regex-replace reg ,',g!s a2)))))))
+		 (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1)))
+			 (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m)) ; ev gensym problems??
+				 (if (string= "" m)
+					 (ppcre:regex-replace a1 ,',g!s a2)
+					 (if (find #\g m)
+						 (if (find #\e m)
+							 (ppcre:regex-replace-all reg ,',g!s a2 :simple-calls t)
+							 (ppcre:regex-replace-all reg ,',g!s a2))
+						 (if (find #\e m)
+							 (ppcre:regex-replace reg ,',g!s a2 :simple-calls t)
+							 (ppcre:regex-replace reg ,',g!s a2))))))))
 
 (lol:defmacro! mat (o!a o!m)
   ``(lambda (,',g!s)
