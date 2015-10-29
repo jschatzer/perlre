@@ -7,9 +7,6 @@
 (in-package #:perlre)
 
 (defvar qd #\' "quoting-delimiter") 
-;(defun xx (l i) (case i (\` (first l)) (& (second l)) (\' (third l))))
-;(defun xx (l i) (destructuring-bind (a b c) l (case i (\` a) (& b) (\' c))))  ; (pre:ifmatch (#~s's'x' "stg") "hello")   fails <----
-(defun xx (l i) (optima:match l	((list a b c) l (case i (\` a) (& b) (\' c)))))
 
 (defun segment-reader (s c n)
 	"to supress string interpolation use single-quote delimiters, #~s''', #~m'', as in perl, see camelbook page 192,
@@ -52,18 +49,17 @@
       (t (error "Unknown #~~ mode character")))))
 
 (lol:defmacro! ifmatch ((test s) conseq &optional altern)
-  (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
-         (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
-    `(let ((,g!s ,s))
-       (multiple-value-bind (m a) (,test ,g!s)
-         (declare (ignorable a))
-         (if m
-           (let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
-             (let ,#1=(append 
-                        (mapcar (lambda (a1) `(,(lol:symb "$" a1) (xx ml ',a1))) '(\` & \'))
-                        (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
-               (declare (ignorable ,@(mapcar #'car #1#)))
-               ,conseq))
-           ,altern)))))
+ (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
+				(top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
+	 `(let ((,g!s ,s))
+			(multiple-value-bind (m a) (,test ,g!s)
+				(declare (ignorable a))
+				(if m
+					(let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
+						(let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (optima:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
+														 (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
+							(declare (ignorable ,@(mapcar #'car #1#)))
+							,conseq))
+					,altern)))))
 
 (defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
