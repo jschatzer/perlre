@@ -48,18 +48,17 @@
       (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
       (t (error "Unknown #~~ mode character")))))
 
-(lol:defmacro! ifmatch ((test s) conseq &optional altern)
+(lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
  (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
 				(top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
-	 `(let ((,g!s ,s))
-			(multiple-value-bind (m a) (,test ,g!s)
-				(declare (ignorable a))
-				(if m
-					(let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
-						(let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (optima:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
-														 (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
-							(declare (ignorable ,@(mapcar #'car #1#)))
-							,conseq))
-					,altern)))))
+	 `(multiple-value-bind (m a) (,test ,g!s)
+			(declare (ignorable a))
+			(if m
+				(let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
+					(let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (optima:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
+													 (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
+						(declare (ignorable ,@(mapcar #'car #1#)))
+						,conseq))
+				,altern))))
 
 (defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
