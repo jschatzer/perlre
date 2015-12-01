@@ -108,6 +108,11 @@ s///e  <-->  (ppcre:regex-replace . . . :simple-calls t)
 
 (#~s/"a(bc)(3)"/#'fn/e "abc3e")
 
+------------
+m//g
+------------
+
+(#~m'aB'gi "1ab2ab3ab4")   ; => '("ab" "ab" "ab"))
 
 ```
 

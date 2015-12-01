@@ -37,9 +37,10 @@
 
 (lol:defmacro! mat (o!a o!m)
   ``(lambda (,',g!s)
-      (if (string= "" ,,g!m)
-        (ppcre:scan-to-strings ,(car ,g!a) ,',g!s)
-        (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s))))
+      (cond 
+        ((string= "" ,,g!m) (ppcre:scan-to-strings ,(car ,g!a) ,',g!s))
+        ((find "g" ,,g!m :test 'string=) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s)) 
+        (t (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
 
 (set-dispatch-macro-character #\# #\~
   (lambda (s c n)

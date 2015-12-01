@@ -2,20 +2,22 @@
 
 PERLRE
 
-29.4.2015 named-readtables because of new let-over-lambda version
-          thanks to EuAndreh, https://github.com/jschatzer/perlre/pull/2  
-          (named-readtables:in-readtable lol:lol-syntax)
+29.04.2015 named-readtables because of new let-over-lambda version
+           thanks to EuAndreh, https://github.com/jschatzer/perlre/pull/2  
+           (named-readtables:in-readtable lol:lol-syntax)
 
-15.5.2015 alternate quoting delimiter, a first try
+15.05.2015 alternate quoting delimiter, a first try
 
-20.5.2015 removed named-readtables to get it simple for quick drafting.
-          pandoric-eval
+20.05.2015 removed named-readtables to get it simple for quick drafting.
+           pandoric-eval
 
-18.6.2015 back to let-over-lambda technique to calculate the number of $1, $2 ... variables.
-          all actual tests run o.k
+18.06.2015 back to let-over-lambda technique to calculate the number of $1, $2 ...            variables.
+           all actual tests run o.k
 
-13.7.2015 solved problems with variables/functions in regex if there are modifiers
+13.07.2015 solved problems with variables/functions in regex if there are modifiers
 
-2.8.2015 s///e
+02.08.2015 s///e
 
-23.10.2015  goes without prune-if-match-bodies-from-sub-lexical-scope as in lol
+23.10.2015 goes without prune-if-match-bodies-from-sub-lexical-scope as in lol
+
+01.12.2015 m//g

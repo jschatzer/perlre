@@ -25,7 +25,7 @@ s/r/s/ str
 ;----------------------------------------------
 ; 1) simple m// or s///
 ;----------------------------------------------
-(plan 17)
+(plan 20)
 
 ;normal usage
 (is (#~s'(A)'*\1*'i "hanna") "h*a*nna")
@@ -42,6 +42,28 @@ s/r/s/ str
         (y "AN"))
     (#~s/(format nil "~a" x)/(format nil "~a" y)/ "hanna")) 
   "hANna")
+
+(is 
+  (let ((x "an")
+        (y "AN"))
+    (#~s/x/y/ "hanna")) 
+  "hANna")
+
+(is 
+  (let ((x "an")
+        (y "AN")
+        (z "hanna"))
+    (#~s/x/y/ z)) 
+  "hANna")
+
+(is 
+  (let ((x "an")
+        (y "AN")
+        (z "hanna"))
+    (#~s/(format nil "~a" x)/(format nil "~a" y)/ (format nil "~a" z))) 
+  "hANna")
+
+
 
 ;interpolation with cl-interpol
 (cl-interpol:enable-interpol-syntax)
@@ -349,6 +371,23 @@ s/r/s/ str
 (is (#~s/(code-char 8217)/"'"/g "a’b’c") "a'b'c")
 
 (finalize)
+
+(plan 3)
+
+(is (ppcre:all-matches-as-strings "ab" "1ab2ab3ab4") ; ("ab" "ab" "ab")
+    (#~m'ab'g "1ab2ab3ab4"))
+
+(is (#~m'aB'gi "1ab2ab3ab4") '("ab" "ab" "ab"))
+
+;make a better test
+(is (#~m'aB'gims "1ab2
+     ab3ab4") '("ab" "ab" "ab"))
+;???
+;(#~m'(ab)'g "1ab2ab3ab4"))
+;(#~m'a(b)'g "1ab2ab3ab4"))
+
+(finalize)
+
 
 #|
 ev test, anschauen
