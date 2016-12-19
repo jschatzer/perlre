@@ -4,6 +4,13 @@ perlre
 *perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support*
 ###### idea and code from Doug Hoyte's book [Let Over Lambda](http://letoverlambda.com) and quicklisp-package let-over-lambda
 
+#### Synopsis:
+
+```
+(#~m/regex/imsxge string)
+(#~s!regex!substitution!imsxge string)
+```
+
 With **let-over-lambda** you can do:
 - (#~m/regex/imsx string) or (#~s!regex!substitution!imsx string)
 - It supports perl's imsx modifiers and arbitrary delimiters, 
@@ -112,7 +119,7 @@ s///e  <-->  (ppcre:regex-replace . . . :simple-calls t)
 m//g
 ------------
 
-(#~m'aB'gi "1ab2ab3ab4")   ; => '("ab" "ab" "ab"))
+(#~m'aB'gi "1ab2ab3ab4")   ; => '("ab" "ab" "ab")
 
 ```
 

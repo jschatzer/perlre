@@ -389,6 +389,49 @@ s/r/s/ str
 (finalize)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 19.12.2016
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(plan 5)
+
+;replace all  ’  with '
+(is (#~s/"’"/"'"/g "a’b’c") ; "a'b'c" 
+    "a'b'c")
+
+;(char-code #\’) ; 8217
+(is (#~s/(code-char 8217)/"'"/g "a’b’c")
+    "a'b'c")
+
+;from man perlre
+(is-values (#~m/"fi"/i "LATIN SMALL LIGATURE FI") '("FI" #()) :test #'equalp)
+
+;# swap first two words, from man perlre
+(is (#~s'^([^ ]*) *([^ ]*)'\2 \1' "Abc Bca Cde")
+    "Bca Abc Cde")
+
+; x modifier
+;from https://code.tutsplus.com/tutorials/advanced-regular-expression-tips-and-techniques--net-11011
+;match us phone number
+(is-values
+  (#~m'^         # beginn of string
+   (1[-\s.])?    # optional "1-", "1." or "1"   
+   (\()?         # optional opening parenthesis
+   \d{3}         # the area code
+   (?(2)\))      # if there was opening parenthesis, close it
+   [-\s.]?       # followed by "-" or "." or space
+   \d{3}         # first 3 digits
+   [-\s.]?       # followed by "-" or "." or space
+   \d{4}         # last 4 digits
+   $'x           
+   ; "1-541-754-3010")
+   "(541) 754-3010")
+  '("(541) 754-3010" #(NIL "(")) :test #'equalp)
+
+
+
+
+(finalize)
+
 #|
 ev test, anschauen
 ;;; in icd diagnosi
@@ -403,12 +446,13 @@ replace all  ’  with '       <----------------
 		right double-quote — &rdquo; — ”
 		left double-quote — &ldquo; — “
 
-(code-char #\’)
+(code-char #\’)   ; error
 
 (char-code #\’) ; 8217
 
 (#~s'’'x'g "a’b’c")    <--- ad test perlre
 
 (#~s'’'x'g "a’b’c")    <--- ad test perlre
+
 
 |#

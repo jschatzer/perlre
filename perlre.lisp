@@ -35,6 +35,76 @@
                 (ppcre:regex-replace reg ,',g!s a2 :simple-calls t)
                 (ppcre:regex-replace reg ,',g!s a2))))))))
 
+; ist in bzw siehe perlre.1.12.15.lisp
+
+;---- without /e modifier
+#|
+(lol:defmacro! sub (o!a o!m)
+  ``(lambda (,',g!s) 
+      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1))
+                        (sc (a2 :simple-calls t)))
+        (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m)) ; ev gensym problems??
+          (if (string= "" m)
+            (ppcre:regex-replace a1 ,',g!s a2)
+            (if (find #\g m)
+              (ppcre:regex-replace-all reg ,',g!s (if (functionp a2) sc a2))
+              (ppcre:regex-replace reg ,',g!s (if (functionp a2) sc a2))))))))
+
+;könnte prinzipiell gehen, problems with splice in
+(lol:defmacro! sub (o!a o!m)
+  ``(lambda (,',g!s) 
+      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1))
+                        (rep `(if (functionp ,a2) '(a2 :simple-calls t) '(a2))))   ; splice this in
+        (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m)) ; ev gensym problems??
+          (if (string= "" m)
+            (ppcre:regex-replace a1 ,',g!s a2)
+            (if (find #\g m)
+              (ppcre:regex-replace-all reg ,',g!s ,@rep)
+              (ppcre:regex-replace reg ,',g!s ,@rep)))))))
+
+(lol:defmacro! sub (o!a o!m)
+  ``(lambda (,',g!s) 
+      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1)))
+        (let* ((a1 ,(car ,g!a)) 
+              (a2 ,(cadr ,g!a)) 
+              (m ,,g!m)
+              (rep (if (functionp a2) '(a2 :simple-calls t) '(a2))))
+          (if (string= "" m)
+            (ppcre:regex-replace a1 ,',g!s a2)
+            (if (find #\g m)
+              `(ppcre:regex-replace-all ,reg ,,',g!s ,@rep)
+              `(ppcre:regex-replace ,reg ,,',g!s ,@rep)))))))
+
+(lol:defmacro! sub (o!a o!m)
+  ``(lambda (,',g!s) 
+      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1)))
+        (let* ((a1 ,(car ,g!a)) 
+              (a2 ,(cadr ,g!a)) 
+              (m ,,g!m)
+              (rep (if (functionp a2) `(,a2 :simple-calls t) `(,a2))))
+          (if (string= "" m)
+            (ppcre:regex-replace a1 ,',g!s a2)
+            (if (find #\g m)
+              `(ppcre:regex-replace-all ,reg ,,',g!s ,@rep)
+              `(ppcre:regex-replace ,reg ,,',g!s ,@rep)))))))
+
+;geht nicht
+(lol:defmacro! sub (o!a o!m)
+  ``(lambda (,',g!s) 
+      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1)))
+        (let* ((a1 ,(car ,g!a)) 
+              (a2 ,(cadr ,g!a)) 
+              (m ,,g!m)
+              (rep (if (functionp a2) `(,a2 :simple-calls t) `(,a2))))
+          (if (string= "" m)
+            (ppcre:regex-replace a1 ,',g!s a2)
+            (if (find #\g m)
+              (ppcre:regex-replace-all reg ,',g!s `,@rep)
+              (ppcre:regex-replace reg ,',g!s `,@rep)))))))
+
+|#
+;-------------------------------------------------------------
+
 (lol:defmacro! mat (o!a o!m)
   ``(lambda (,',g!s)
       (cond 
@@ -49,6 +119,17 @@
       (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
       (t (error "Unknown #~~ mode character")))))
 
+#|;geht
+(cl-anonfun:enable-fn-syntax)
+
+(set-dispatch-macro-character #\# #\~
+    #%3(case (read-char %1)
+      (#\m (mat (segment-reader %1 (read-char %1) 1) (mods %1)))
+      (#\s (sub (segment-reader %1 (read-char %1) 2) (mods %1)))
+      (t (error "Unknown #~~ mode character"))))
+|#
+
+
 (lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
   (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
          (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
@@ -61,5 +142,20 @@
              (declare (ignorable ,@(mapcar #'car #1#)))
              ,conseq))
          ,altern))))
+
+#|geht nicht, warum nicht? 2.12.15
+(lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
+  (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
+         (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
+    `(multiple-value-bind (m a) (,test ,g!s)
+       (declare (ignorable a))
+       (if m
+         (let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
+           (let ,#1=(append (mapcar #%`(,(lol:symb "$" %) (optima:match ml ((list a b c) (case ',% (\` a) (& b) (\' c))))) '(\` & \'))
+                            (mapcar #%`(,(lol:symb "$" %) (aref a (1- ,%))) (loop for i from 1 to top collect i)))
+             (declare (ignorable ,@(mapcar #'car #1#)))
+             ,conseq))
+         ,altern))))
+|#
 
 (defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))

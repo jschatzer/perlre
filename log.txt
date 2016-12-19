@@ -11,7 +11,7 @@ PERLRE
 20.05.2015 removed named-readtables to get it simple for quick drafting.
            pandoric-eval
 
-18.06.2015 back to let-over-lambda technique to calculate the number of $1, $2 ...            variables.
+18.06.2015 back to let-over-lambda technique to calculate the number of $1, $2 ... variables.
            all actual tests run o.k
 
 13.07.2015 solved problems with variables/functions in regex if there are modifiers
