@@ -456,3 +456,14 @@ replace all  ’  with '       <----------------
 
 
 |#
+
+; 24.9.2017
+;split/divide test
+(plan 3)
+(is (#~d'b' "abc") '("a" "c") :test #'equalp)
+(is (#~d/#\|/ "a|b") '("a" "b") :test #'equalp)
+(is (destructuring-bind (x y) (#~d/#\|/ "a|b") (list y x)) '("b" "a") :test #'equalp)
+
+
+(finalize)
+

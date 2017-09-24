@@ -5,6 +5,7 @@
 ;-----------------------------------------------------------------------------
 
 (in-package #:perlre)
+;(named-readtables:in-readtable lol:lol-syntax)
 
 (defvar qd #\' "quoting-delimiter") 
 
@@ -36,6 +37,7 @@
                 (ppcre:regex-replace reg ,',g!s a2))))))))
 
 ; ist in bzw siehe perlre.1.12.15.lisp
+;--------------------
 
 ;---- without /e modifier
 #|
@@ -112,12 +114,29 @@
         ((find "g" ,,g!m :test 'string=) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s)) 
         (t (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#|
 (set-dispatch-macro-character #\# #\~
   (lambda (s c n)
     (case (read-char s)
       (#\m (mat (segment-reader s (read-char s) 1) (mods s)))
       (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
       (t (error "Unknown #~~ mode character")))))
+|#
+
+;27.2.2017  to use it in onlisp <---
+; ev wieder mit named readtables???
+(defun xxx (s c n)
+    (case (read-char s)
+      (#\m (mat (segment-reader s (read-char s) 1) (mods s)))
+      (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
+      (t (error "Unknown #~~ mode character"))))
+(set-dispatch-macro-character #\# #\~ 'xxx)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 #|;geht
 (cl-anonfun:enable-fn-syntax)
@@ -128,6 +147,37 @@
       (#\s (sub (segment-reader %1 (read-char %1) 2) (mods %1)))
       (t (error "Unknown #~~ mode character"))))
 |#
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 24.9.2017 split test
+;options zu überlegen, 
+; i case-insensitiv <---
+; limit             <---
+;  limit   with-registers-p omit-unmatched-p sharedp
+
+;(lol:defmacro! split (o!a o!m)
+(lol:defmacro! div (o!a o!m)
+ ``(lambda (,',g!s)
+     (cond 
+       ;((string= "" ,,g!m) (ppcre:scan-to-strings ,(car ,g!a) ,',g!s))
+       ;((find "g" ,,g!m :test 'string=) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s))
+       ;(t (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
+       ((string= "" ,,g!m) (ppcre:split ,(car ,g!a) ,',g!s))
+       ; g not relevant
+       (t (ppcre:split (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
+
+(defun xxx (s c n)
+  (case (read-char s)
+    (#\m (mat (segment-reader s (read-char s) 1) (mods s)))
+    (#\d (div (segment-reader s (read-char s) 1) (mods s))) ; divide for split
+    (#\s (sub (segment-reader s (read-char s) 2) (mods s)))
+    (t (error "Unknown #~~ mode character"))))
+(set-dispatch-macro-character #\# #\~ 'xxx)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
 
 
 (lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
@@ -143,7 +193,9 @@
              ,conseq))
          ,altern))))
 
-#|geht nicht, warum nicht? 2.12.15
+#|geht nicht, warum nicht? 2.12.15     bugreport in cl-anonfun  --email 11.5.17  <-----
+(cl-anonfun:enable-fn-syntax)
+
 (lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
   (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
          (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
