@@ -459,11 +459,38 @@ replace all  ’  with '       <----------------
 
 ; 24.9.2017
 ;split/divide test
+
+#|
+; 28.3.18
+;;; include
+(ppcre:split "a" "cab")  ; ("c" "b")
+(ppcre:split "(a)" "cab" :with-registers-p t) ;  ("c" "a" "b")
+|#
+
+
 (plan 3)
 (is (#~d'b' "abc") '("a" "c") :test #'equalp)
 (is (#~d/#\|/ "a|b") '("a" "b") :test #'equalp)
 (is (destructuring-bind (x y) (#~d/#\|/ "a|b") (list y x)) '("b" "a") :test #'equalp)
-
-
 (finalize)
+
+;30.3.2018 split with limit and registers
+(plan 11)
+(is (#~d'b' "abc") '("a" "c") :test #'equalp)
+(is (#~d'(b)' "abc") '("a" "c") :test #'equalp)
+(is (#~d'B'i "abc") '("a" "c") :test #'equalp)
+(is (#~d'(b)'r "abc") '("a" "b" "c") :test #'equalp)
+(is (#~d'(B)'ir "abc") '("a" "b" "c") :test #'equalp)
+(is (ppcre:split "b" "abcbd" :limit 2) '("a" "cbd") :test #'equalp)
+(is (ppcre:split "b" "abcbd" :limit (+ 1 1)) '("a" "cbd") :test #'equalp)
+(is (#~d'b'2 "abcbd") '("a" "cbd") :test #'equalp)
+(is (#~d'(b)'r2 "abcbd") '("a" "b" "cbd") :test #'equalp)
+(is (ppcre:split "(b)" "abcbd" :limit 3 :with-registers-p t) '("a" "b" "c" "b" "d") :test #'equalp)
+(is (#~d'(b)'r3 "abcbd") '("a" "b" "c" "b" "d") :test #'equalp)
+(finalize)
+
+
+
+
+
 

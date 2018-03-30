@@ -9,6 +9,7 @@ perlre
 ```
 (#~m/regex/imsxge string)
 (#~s!regex!substitution!imsxge string)
+(#~d'regex' string) 
 ```
 
 With **let-over-lambda** you can do:
@@ -23,6 +24,7 @@ With **let-over-lambda** you can do:
 - normal variable substitution or function calls like format
 - suppressing interpolation, using single quotes `m''` or `s'''` as in perl
 - ifmatch and whenmatch with ```$\` $& $\' $1, $2 ...``` note backslash in symbols with quotes
+- similar syntax for split `d//` (d for divide)
 
 
 For now interpolation comes with a cost, here are some restrictions:
@@ -89,6 +91,7 @@ interpolation with cl-interpol
 
 (cl-interpol:disable-interpol-syntax)
 
+
 ------------
 with another quoting delimiter
 ------------
@@ -101,6 +104,7 @@ with another quoting delimiter
 
 
 (setf perlre::qd #\') ; reset to default
+  
 
 ------------
 e modifier
@@ -115,11 +119,21 @@ s///e  <-->  (ppcre:regex-replace . . . :simple-calls t)
 
 (#~s/"a(bc)(3)"/#'fn/e "abc3e")
 
+
 ------------
 m//g
 ------------
 
 (#~m'aB'gi "1ab2ab3ab4")   ; => '("ab" "ab" "ab")
+
+
+------------
+d//  
+------------
+
+(#~d'b' "abc")                         ;("a" "c")
+(#~d'(b)'r "abc")                      ;("a" "b" "c")
+(#~d'b'2 "abcbd")                      ;("a" "cbd")
 
 ```
 
