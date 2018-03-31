@@ -43,22 +43,14 @@
         ((find "g" ,,g!m :test 'string=) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s)) 
         (t (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
 
-;--------------------
-; split ~ divide - noch kompliziert, scheint aber zu gehen, Reihenfolge der conditions ist wichtig
-; omit-unmatched-p sharedp -- ev include
 (lol:defmacro! div (o!a o!m)
   ``(lambda (,',g!s)
       (cond 
         ((string= "" ,,g!m) (ppcre:split ,(car ,g!a) ,',g!s))
-        ((and (find "r" ,,g!m :test 'string=) (find-if 'digit-char-p ,,g!m))
-         (let ((n (digit-char-p (find-if 'digit-char-p ,,g!m)))) (ppcre:split (format nil "(?~a)~a" (remove #\r (remove-if 'digit-char-p ,,g!m)) ,(car ,g!a)) ,',g!s :limit n :with-registers-p t)))
-        ((find "r" ,,g!m :test 'string=) (ppcre:split (format nil "(?~a)~a" (remove #\r ,,g!m) ,(car ,g!a)) ,',g!s :with-registers-p t))
-        ;; müßte auch gehen
-        ;      ((find-if 'digit-char-p ,,g!m) (ppcre:split (format nil "(?~a)~a" (remove-if 'digit-char-p ,,g!m) ,(car ,g!a)) ,',g!s :limit (digit-char-p (find-if 'digit-char-p ,,g!m))))
-        ((find-if 'digit-char-p ,,g!m) (let ((n (digit-char-p (find-if 'digit-char-p ,,g!m)))) (ppcre:split (format nil "(?~a)~a" (remove-if 'digit-char-p ,,g!m) ,(car ,g!a)) ,',g!s :limit n)))
-        ; g not relevant
+        ((or #1=(find #\r ,,g!m) #2=(find-if 'digit-char-p ,,g!m))
+         (ppcre:split (format nil "(?~a)~a" (remove-if (lambda (x) (or (char= x #\r) (digit-char-p x))) ,,g!m) ,(car ,g!a))
+                      ,',g!s :with-registers-p #1# :limit (lol:aif #2# (digit-char-p lol:it))))
         (t (ppcre:split (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
-;--------------------
 
 (defun xxx (s c n)
   (case (read-char s)
