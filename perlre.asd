@@ -1,13 +1,11 @@
 ;;;; perlre.asd
 
 (asdf:defsystem #:perlre
-  :version "0.3"
-  :description "perl regular expression api - m// and s/// - for CL-PPCRE with CL-INTERPOL support"
+  :version "0.4"
+  :description "s///, m//, d// - regular expression API for CL-PPCRE and CL-INTERPOL"
   :author "<schatzer.johann@gmail> using idea and code from LET-OVER-LAMBDA"
   :license "BSD Simplified --- the same as let-over-lambda"
-  :depends-on (cl-ppcre cl-interpol let-over-lambda prove optima 
-                        ;cl-anonfun
-                        )
+  :depends-on (cl-ppcre cl-interpol let-over-lambda prove optima)
   :serial t
   :components ((:file "package")
                (:file "perlre")))

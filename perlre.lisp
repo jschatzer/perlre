@@ -8,19 +8,7 @@
 ;(named-readtables:in-readtable lol:lol-syntax)
 
 
-#|
-;(defvar qd #\' "quoting-delimiter") 
-
-(defun segment-reader (s c n)
-  "to supress string interpolation use single-quote delimiters, #~s''', #~m'', as in perl, see camelbook page 192,
-  or use an alternate quoting-delimiter doing e.g. (setf perlre::qd #\!)"
-  (if (plusp n)
-    (symbol-macrolet ((bar (coerce (nreverse chars) 'string)) (baz (segment-reader s c (1- n))))
-      (let (chars)
-        (do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
-        (if (char= c qd) (cons bar baz) (cons (with-input-from-string (x bar) (read x)) baz))))))
-|#
-
+; may be usful to set it to another char; ev include in sement-reader (if (char= c #\/) ...
 (defvar e-d #\/ "evaluating-delimiter") 
 
 (defun segment-reader (s c n)
@@ -31,8 +19,6 @@
       (let (chars)
         (do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
         (if (char= c e-d) (cons (with-input-from-string (x bar) (read x)) baz) (cons bar baz))))))
-
-
 
 (defun mods (s)
   "imsxger{\d} modifiers, \d for digits"

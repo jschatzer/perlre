@@ -1,26 +1,13 @@
 ;test.lisp
 (defpackage test (:use cl prove perlre))
 (in-package test)
-#|===========================================================================================
-Rules:
-=============================================================================================
-m/r/   str
-s/r/s/ str
-=============================================================================================
-1) - str can always be any lisp form, which returns a string 
-   - if there are quoting delimiters, e.g. s'''
-     r and s are interpreted as literal strings 
-   - if there are non-quoting delimiters, r and s may be any lisp form, which returns a string 
-     e.g. - "abc" 
-          - "ab${variable}12"
-          - (let ((x "abc")) (#~s/x/"123"/ abc))
-          - (#~m/(princ-to-string 'hello)/ (string-upcase "hello"))
 
-# 2) if-match -- scope of $1 $& etc, nesting
-3) quoting delimiter should be not global and possibly integrated, todo
-4) interpolating variables should not need explicit enabling, todo
-# 5) var/fnc with modifier problem, solved, 13.7.2015
-===========================================================================================|#
+#|============================================================================================
+Rules:
+1) - use // delimiters to have the content evaluated
+2) - for unevaluated content use any other character as delimiter, e.g. (#~ma3a "1234") -> "3"
+3) - (cl-interpol:enable-interpol-syntax) to get variable- and backslash interpolation 
+============================================================================================|#
 
 ;----------------------------------------------
 ; 1) simple m// or s///
@@ -31,7 +18,6 @@ s/r/s/ str
 (is (#~s'(A)'*\1*'i "hanna") "h*a*nna")
 (is (#~s'(A)'*\1*'ig "hanna") "h*a*nn*a*")
 (is (#~s/"(a)"/"*\\1*"/ "hanna") "h*a*nna")
-;(is (#~s%"(a)"%"*\\1*"%g "hanna") "h*a*nn*a*")   ; geht nicht mehr, 31.3.18
 
 ;variable or function
 (is-values (#~m/(princ-to-string 'hello)/ (string-upcase "hello")) '("HELLO" #()) :test #'equalp) 
@@ -64,8 +50,9 @@ s/r/s/ str
   "hANna")
 
 
-
-;interpolation with cl-interpol
+;----------------------------------------------
+; 2) interpolation with cl-interpol
+;----------------------------------------------
 (cl-interpol:enable-interpol-syntax)
 (is 
   (let ((x "(n)(n)"))
@@ -83,28 +70,28 @@ s/r/s/ str
  na")
 (cl-interpol:disable-interpol-syntax)
 
-;with another quoting delimiter
-;nicht mehr notwendig, 31.3.18
-;(setf perlre::qd #\§)
+
+;----------------------------------------------
+; 3) other quoting delimiter
+;----------------------------------------------
 (is (#~s§(A)§'\1'§i "hanna") "h'a'nna")
-;(setf perlre::qd #\') ; reset to default 
 
 
+;----------------------------------------------
+; 4) with // delimiters regex, substitution and string can be any lisp form returning a string
+;----------------------------------------------
 (is-values (let ((stg "a")) (#~m'a' stg)) '("a" #()) :test #'equalp)
 (is-values (let ((stg "a")) (#~s'a'b' stg)) '("b" t))
-
-; (m/r/ s)   s may be a string, variable, function
 (is-values (#~m'a' "a") '("a" #()) :test #'equalp)
 (is-values (let ((stg "a")) (#~m'a' stg)) '("a" #()) :test #'equalp)
 (is-values (#~m'a' (format nil "a")) '("a" #()) :test #'equalp)
 (is-values (let ((stg "a")) (#~m'a' (format nil "~a" stg))) '("a" #()) :test #'equalp)
-; string can be any lisp form returning a string
 (is (#~m'abc' (#~m'abc' "abc")) "abc")
 
 (finalize)
 
 ;----------------------------------------------
-; 2) simple if, when
+; 5) simple if, when
 ;----------------------------------------------
 (plan 2)
 
@@ -114,7 +101,7 @@ s/r/s/ str
 (finalize)
 
 ;----------------------------------------------
-; 3) ifmatch whenmatch, these are ok
+; 6) ifmatch whenmatch, these are ok
 ;----------------------------------------------
 (plan 11)
 
@@ -168,7 +155,7 @@ s/r/s/ str
 (finalize)
 
 ;----------------------------------------------
-; 4) ifmatch whenmatch - warning, undefined variable: $1, solved
+; 7) ifmatch whenmatch - warning, undefined variable: $1, solved
 ;----------------------------------------------
 (plan 3)
 
@@ -196,7 +183,7 @@ s/r/s/ str
 (finalize)
 
 ;----------------------------------------------
-; 5) ifmatch whenmatch, nesting problem, solved
+; 8) ifmatch whenmatch, nesting problem, solved
 ;----------------------------------------------
 (plan 1)
 ; example from abc  <------
@@ -454,26 +441,19 @@ replace all  ’  with '       <----------------
 (#~s'’'x'g "a’b’c")    <--- ad test perlre
 
 (#~s'’'x'g "a’b’c")    <--- ad test perlre
-
-
 |#
 
 ; 24.9.2017
 ;split/divide test
-
-#|
-; 28.3.18
-;;; include
-(ppcre:split "a" "cab")  ; ("c" "b")
-(ppcre:split "(a)" "cab" :with-registers-p t) ;  ("c" "a" "b")
-|#
-
-
 (plan 3)
 (is (#~d'b' "abc") '("a" "c") :test #'equalp)
 (is (#~d/#\|/ "a|b") '("a" "b") :test #'equalp)
 (is (destructuring-bind (x y) (#~d/#\|/ "a|b") (list y x)) '("b" "a") :test #'equalp)
 (finalize)
+
+; 28.3.18
+;(ppcre:split "a" "cab")  ; ("c" "b")
+;(ppcre:split "(a)" "cab" :with-registers-p t) ;  ("c" "a" "b")
 
 ;30.3.2018 split with limit and registers
 (plan 11)
@@ -490,8 +470,16 @@ replace all  ’  with '       <----------------
 (is (#~d'(b)'r3 "abcbd") '("a" "b" "c" "b" "d") :test #'equalp)
 (finalize)
 
-
-
-
-
+(plan 1)
+; example in README
+; output of both is "h*a*nn*a*" 
+(let ((stg "hanna")
+      (reg "(A)")
+      (sub "*\\1*"))
+  (is
+    ; perlre
+    (#~s/reg/sub/ig stg)
+    ; cl-ppcre
+    (ppcre:regex-replace-all (ppcre:create-scanner reg :case-insensitive-mode t) stg sub)))
+(finalize)
 
