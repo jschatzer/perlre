@@ -7,36 +7,27 @@
 (in-package #:perlre)
 ;(named-readtables:in-readtable lol:lol-syntax)
 
-
-; may be usful to set it to another char; ev include in sement-reader (if (char= c #\/) ...
-(defvar e-d #\/ "evaluating-delimiter") 
-
 (defun segment-reader (s c n)
-  "to supress string interpolation use single-quote delimiters, #~s''', #~m'', as in perl, see camelbook page 192,
-  or use an alternate quoting-delimiter doing e.g. (setf perlre::qd #\!)"
+  "evaluation with / / delimiters, no evaluation with any other corresponding delimiter"
   (if (plusp n)
     (symbol-macrolet ((bar (coerce (nreverse chars) 'string)) (baz (segment-reader s c (1- n))))
       (let (chars)
         (do ((curr #1=(read-char s) #1#)) ((char= c curr)) (push curr chars))
-        (if (char= c e-d) (cons (with-input-from-string (x bar) (read x)) baz) (cons bar baz))))))
+        (if (char= c #\/) (cons (with-input-from-string (x bar) (read x)) baz) (cons bar baz))))))
 
 (defun mods (s)
-  "imsxger{\d} modifiers, \d for digits"
+  "modifiers: i m s x g e r and digits"
   (coerce (loop for c = (read-char s) while (alphanumericp c) collect c finally (unread-char c s)) 'string))
 
 (lol:defmacro! sub (o!a o!m)
   ``(lambda (,',g!s) 
-      (symbol-macrolet ((reg (format nil "(?~a)~a" (remove #\e (remove #\g m)) a1)))
-        (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m)) ; ev gensym problems??
+        (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m))
           (if (string= "" m)
             (ppcre:regex-replace a1 ,',g!s a2)
             (if (find #\g m)
-              (if (find #\e m)
-                (ppcre:regex-replace-all reg ,',g!s a2 :simple-calls t)
-                (ppcre:regex-replace-all reg ,',g!s a2))
-              (if (find #\e m)
-                (ppcre:regex-replace reg ,',g!s a2 :simple-calls t)
-                (ppcre:regex-replace reg ,',g!s a2))))))))
+              (ppcre:regex-replace-all #1=(format nil "(?~a)~a" (remove #\e (remove #\g m)) a1) ,',g!s a2 
+                                       :simple-calls #2=(find-if (lambda (x) (char= x #\e)) m))
+              (ppcre:regex-replace #1# ,',g!s a2 :simple-calls #2#))))))
 
 (lol:defmacro! mat (o!a o!m)
   ``(lambda (,',g!s)
@@ -76,3 +67,5 @@
          ,altern))))
 
 (defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
+
+;(ifsplit $1 $2 ..?

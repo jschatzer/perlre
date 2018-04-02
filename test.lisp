@@ -130,7 +130,7 @@ Rules:
 (cl-interpol:enable-interpol-syntax)
 (is 
   (let ((x "an")) 
-    (pre:ifmatch (#~m/#?"(${x})"/ "hanna") 
+    (ifmatch (#~m/#?"(${x})"/ "hanna") 
                  (list $& $1)))
   '("an" "an"))
 (cl-interpol:disable-interpol-syntax)
@@ -482,4 +482,18 @@ replace all  ’  with '       <----------------
     ; cl-ppcre
     (ppcre:regex-replace-all (ppcre:create-scanner reg :case-insensitive-mode t) stg sub)))
 (finalize)
+
+#|
+vergleicht optima match, ev include in test
+;-geht--------------------------
+;nicht ad perlre test, da muß auch optima.ppcre geladen werden
+(h:ql :optima.ppcre)
+
+(optima:match "1234"
+  ((optima.ppcre:ppcre "(3)" r) r))
+
+(#~ma3a "1234")
+;beide geben "3"
+;-------------------------------
+#|
 

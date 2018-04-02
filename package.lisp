@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:perlre
-  (:nicknames pre)
+  ;(:nicknames pre)
   (:use #:cl)
   (:export ifmatch whenmatch))
 
