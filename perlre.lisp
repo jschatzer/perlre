@@ -60,7 +60,7 @@
        (declare (ignorable a))
        (if m
          (let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
-           (let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (optima:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
+           (let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (trivia:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
                             (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
              (declare (ignorable ,@(mapcar #'car #1#)))
              ,conseq))

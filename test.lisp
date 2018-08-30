@@ -355,8 +355,8 @@ Rules:
 
 (plan 2)
 
-(is (#~s/"’"/"'"/g "a’b’c") "a'b'c")
-(is (#~s/(code-char 8217)/"'"/g "a’b’c") "a'b'c")
+(is (#~s/"'"/"'"/g "a'b'c") "a'b'c")
+(is (#~s/(code-char 8217)/"'"/g "a'b'c") "a'b'c")
 
 (finalize)
 
@@ -483,17 +483,17 @@ replace all  ’  with '       <----------------
     (ppcre:regex-replace-all (ppcre:create-scanner reg :case-insensitive-mode t) stg sub)))
 (finalize)
 
-#|
-vergleicht optima match, ev include in test
-;-geht--------------------------
-;nicht ad perlre test, da muß auch optima.ppcre geladen werden
-(h:ql :optima.ppcre)
-
-(optima:match "1234"
-  ((optima.ppcre:ppcre "(3)" r) r))
-
-(#~ma3a "1234")
-;beide geben "3"
-;-------------------------------
-#|
+;;#|
+;;vergleicht optima match, ev include in test
+;;;-geht--------------------------
+;;;nicht ad perlre test, da muß auch optima.ppcre geladen werden
+;;(h:ql :optima.ppcre)
+;;
+;;(optima:match "1234"
+;;  ((optima.ppcre:ppcre "(3)" r) r))
+;;
+;;(#~ma3a "1234")
+;;;beide geben "3"
+;;;-------------------------------
+;;#|
 
