@@ -483,7 +483,6 @@ replace all  ’  with '       <----------------
     (ppcre:regex-replace-all (ppcre:create-scanner reg :case-insensitive-mode t) stg sub)))
 (finalize)
 
-;;#|
 ;;vergleicht optima match, ev include in test
 ;;;-geht--------------------------
 ;;;nicht ad perlre test, da muß auch optima.ppcre geladen werden
@@ -495,5 +494,44 @@ replace all  ’  with '       <----------------
 ;;(#~ma3a "1234")
 ;;;beide geben "3"
 ;;;-------------------------------
-;;#|
+
+(plan 7)
+(is (match "abc"
+      (#~m'(a)' $1))
+    "a")
+
+(is (match "abc"
+      (#~m'(e)' $1)
+      (#~m'd' 'no)
+      (#~m'a(b)c' 'yes $1))
+    "b")
+
+(is (pre:match "abc"
+       (#~m'(e)' $1)
+       (#~m'd' 'no)
+       (#~m'a(d)c' 'yes $1))
+    NIL)         ; 'NIL geht auch
+
+(is 
+(match "2012-11-04" 
+  (#~m'^(\d+)-(\d+)-(\d+)$' (list $1 $2 $3)))
+    '("2012" "11" "04") :test #'equalp)
+
+;vs trivia
+(is (trivia:match "2012-11-04"
+      ((trivia.ppcre:ppcre "^(\\d+)-(\\d+)-(\\d+)$" year month day)
+       (list year month day)))
+    '("2012" "11" "04") :test #'equalp)
+ 
+(is (pre:ifmatch (#~m'^(\d+)-(\d+)-(\d+)$' "2012-11-04")
+      (list $1 $2 $3))
+    '("2012" "11" "04") :test #'equalp)
+ 
+(is (pre:whenmatch (#~m'^(\d+)-(\d+)-(\d+)$' "2012-11-04")
+      (list $1 $2 $3))
+    '("2012" "11" "04") :test #'equalp)
+
+(finalize)
+
+
 

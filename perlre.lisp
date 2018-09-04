@@ -69,3 +69,28 @@
 (defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
 
 ;(ifsplit $1 $2 ..?
+
+;-geht 4.9.2018 -------------------------
+(defmacro match (stg &body clauses)
+  `(cond
+     ,@(loop for (regex . conseq) in clauses
+             collect `((whenmatch (,regex ,stg) ,@conseq)))))
+
+;; ; "a"
+;; (match "abc"
+;;        (#~m'(a)' $1))
+;; 
+;; '(match "abc"
+;;        (#~m'(a)' $1))
+;; 
+;; ; "b"
+;; (match "abc"
+;;        (#~m'(e)' $1)
+;;        (#~m'd' 'no)
+;;        (#~m'a(b)c' 'yes $1))
+;; 
+;; '(match "abc"
+;;        (#~m'(e)' $1)
+;;        (#~m'd' 'no)
+;;        (#~m'a(b)c' 'yes $1))
+
