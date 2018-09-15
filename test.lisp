@@ -495,7 +495,7 @@ replace all  ’  with '       <----------------
 ;;;beide geben "3"
 ;;;-------------------------------
 
-(plan 7)
+(plan 8)
 (is (match "abc"
       (#~m'(a)' $1))
     "a")
@@ -530,6 +530,12 @@ replace all  ’  with '       <----------------
 (is (pre:whenmatch (#~m'^(\d+)-(\d+)-(\d+)$' "2012-11-04")
       (list $1 $2 $3))
     '("2012" "11" "04") :test #'equalp)
+
+; (t for otherweise 15.9.18
+(is (match "2012-11-04" 
+  (#~m'abc' 1)
+  (t 2)) 2)
+
 
 (finalize)
 

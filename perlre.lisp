@@ -70,11 +70,22 @@
 
 ;(ifsplit $1 $2 ..?
 
+#|
 ;-geht 4.9.2018 -------------------------
 (defmacro match (stg &body clauses)
   `(cond
      ,@(loop for (regex . conseq) in clauses
              collect `((whenmatch (,regex ,stg) ,@conseq)))))
+|#
+
+; (t ...) otherweise, 15.9.18
+(defmacro match (stg &body clauses)
+  `(cond
+     ,@(loop for (regex . conseq) in clauses
+             collect (if (equal regex t)
+                       `(t ,@conseq)
+                       `((whenmatch (,regex ,stg) ,@conseq))))))
+
 
 ;; ; "a"
 ;; (match "abc"
