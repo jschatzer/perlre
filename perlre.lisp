@@ -60,7 +60,8 @@
        (declare (ignorable a))
        (if m
          (let ((ml (ppcre:split (format nil "(~a)" m) ,g!s :with-registers-p t :limit 3)))
-           (let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (trivia:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c)))))) '(\` & \'))
+           (let ,#1=(append (mapcar (lambda (a1) `(,(lol:symb "$" a1) (trivia:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c))))))
+                                    '(\` & \'))
                             (mapcar (lambda (a1) `(,(lol:symb "$" a1) (aref a (1- ,a1)))) (loop for i from 1 to top collect i)))
              (declare (ignorable ,@(mapcar #'car #1#)))
              ,conseq))
@@ -70,38 +71,10 @@
 
 ;(ifsplit $1 $2 ..?
 
-#|
-;-geht 4.9.2018 -------------------------
-(defmacro match (stg &body clauses)
-  `(cond
-     ,@(loop for (regex . conseq) in clauses
-             collect `((whenmatch (,regex ,stg) ,@conseq)))))
-|#
-
-; (t ...) otherweise, 15.9.18
 (defmacro match (stg &body clauses)
   `(cond
      ,@(loop for (regex . conseq) in clauses
              collect (if (equal regex t)
                        `(t ,@conseq)
                        `((whenmatch (,regex ,stg) ,@conseq))))))
-
-
-;; ; "a"
-;; (match "abc"
-;;        (#~m'(a)' $1))
-;; 
-;; '(match "abc"
-;;        (#~m'(a)' $1))
-;; 
-;; ; "b"
-;; (match "abc"
-;;        (#~m'(e)' $1)
-;;        (#~m'd' 'no)
-;;        (#~m'a(b)c' 'yes $1))
-;; 
-;; '(match "abc"
-;;        (#~m'(e)' $1)
-;;        (#~m'd' 'no)
-;;        (#~m'a(b)c' 'yes $1))
 
