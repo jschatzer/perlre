@@ -46,15 +46,11 @@ Can be useful for code brevity in regex heavy programs.
     (#~m§(2012)-11-(04)§ (print 'hello) (+ (parse-integer $1) (parse-integer $2)))
     (t 2))
 
-;-------------------
-;geht nicht
-  ; -> "04/2012"
-  (match "2012-11-04" 
+  ;"04/2012"
+  (pre:match "2012-11-04"
     (#~m'abc' 1)
-    (#~m§(\d{4}-.+-(..)§) (format nil "~a/~a" $3 $1))
+    (#~m§(\d{4})-.+-(..)§ (format nil "~a/~a" $2 $1))
     (t 2))
-;-------------------
-
 
 ```
 See test.lisp for other examples.
