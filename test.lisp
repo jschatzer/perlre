@@ -539,8 +539,22 @@ replace all  ’  with '       <----------------
 (is (pre:match "2012-11-04" 
       (#~m§(\d{4})-.+-(..)§ (format nil "~a/~a" $2 $1))) "04/2012")
 
+
+
 (finalize)
 
+(plan 1)
+(is 
+  (pre:match "abcdefg"
+    (#~m'123' 'no)
+    (#~m'b(c).(e)f' (list $1 $2 $\` $& $\'))
+    (t 'yes)) 
+  '("c" "e" "a" "bcdef" "g") :test #'equalp)
+
+
+
+
+(finalize)
 
 #|------------------------------------------------------------------
 20.9.2018
@@ -559,5 +573,48 @@ replace all  ’  with '       <----------------
       (#~m'(\d+)-(\d+)-(\d+)' (list $1 $2 $2)))))
 
 ------------------------------------------------------------------|#
+
+
+
+
+
+#|==============================================
+; ???
+; match s/// 
+; match d//
+
+;think of use cases
+;do something with list elements
+
+;1
+(pre:match "abc"
+  (#~d'b' 1))
+
+;("a" "c")
+(#~d'b' "abc")
+
+;("a" "b" "c")
+(#~d'(b)'r "abc")
+
+;("abc")
+(#~d'e' "abc")
+
+;;;----
+;think of use cases
+;do something with subtitution string
+
+;1
+(pre:match "abc"
+  (#~s'b'B' 1))
+
+; "aBc" T
+(#~s'b'B' "abc")
+
+; "aBbBc" T
+(#~s'(b)'B\1B' "abc")
+
+; "abc" NIL
+(#~s'd'B' "abc")
+=============================================|#
 
 
