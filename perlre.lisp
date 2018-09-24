@@ -57,33 +57,6 @@
 ;----------- o -------------------- o --------------------- o ------------------------
 (set-dispatch-macro-character #\# #\~ '|#~-reader|)
 
-;(time (dotimes (x 100000) (pre:ifmatch (#~m'a' "a") 1 2))) ; 5.5 seconds of real time
-;ev keep this?, performance probably plays no role
-(lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
-  (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
-         (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
-    `(multiple-value-bind (m a) (,test ,g!s)
-       (declare (ignorable a))
-       (if m
-         (let (,@#1=(append (mapcar #`,`(,(lol:symb "$" a1) (trivia:match (#~d/(format nil "(~a)" m)/r3 ,g!s) ((list a b c) (case ',a1 (\` a) (& b) (\' c))))) '(\` & \'))
-                            (mapcar #`,`(,(lol:symb "$" a1) (aref a (1- ,a1))) (loop for i from 1 to top collect i))))
-           (declare (ignorable ,@(mapcar #'car #1#)))
-           ,conseq)
-         ,altern))))
-
-(defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
-
-;(ifsplit $1 $2 ..?
-
-(defmacro match (stg &body clauses)
-  `(cond
-     ,@(loop for (regex . conseq) in clauses
-             collect (if (eq regex t)
-                       `(t ,@conseq)
-                       `((whenmatch (,regex ,stg) ,@conseq))))))
-
-;; END ;;
-#|
 ;orig
 ;(time (dotimes (x 100000) (pre:ifmatch (#~m'a' "a") 1 2))) ; 1.5 seconds of real time
 (lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
@@ -100,6 +73,21 @@
              ,conseq))
          ,altern))))
 
+(defmacro whenmatch ((test s) &rest conseq) `(ifmatch (,test ,s) (progn ,@conseq)))
+
+;(ifsplit $1 $2 ..?
+
+(defmacro match (stg &body clauses)
+  `(cond
+     ,@(loop for (regex . conseq) in clauses
+             collect (if (eq regex t)
+                       `(t ,@conseq)
+                       `((whenmatch (,regex ,stg) ,@conseq))))))
+
+;; END ;;
+#|
+;; error: no dispatch function defined for #\`
+
 ;(time (dotimes (x 100000) (pre:ifmatch (#~m'a' "a") 1 2))) ; 2.0 seconds of real time
 (lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
   (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
@@ -110,6 +98,20 @@
          (let* ((ml (#~d/(format nil "(~a)" m)/r3 ,g!s))
                 ,@#1=(append (mapcar #`,`(,(lol:symb "$" a1) (trivia:match ml ((list a b c) (case ',a1 (\` a) (& b) (\' c))))) '(\` & \'))
                              (mapcar #`,`(,(lol:symb "$" a1) (aref a (1- ,a1))) (loop for i from 1 to top collect i))))
+           (declare (ignorable ,@(mapcar #'car #1#)))
+           ,conseq)
+         ,altern))))
+
+;(time (dotimes (x 100000) (pre:ifmatch (#~m'a' "a") 1 2))) ; 5.5 seconds of real time
+;ev keep this?, performance probably plays no role
+(lol:defmacro! ifmatch ((test o!s) conseq &optional altern)
+  (let* ((dollars (remove-duplicates (remove-if-not #'lol:dollar-symbol-p (lol:flatten conseq))))
+         (top (or (car (sort (mapcar #'lol:dollar-symbol-p dollars) #'>)) 0)))
+    `(multiple-value-bind (m a) (,test ,g!s)
+       (declare (ignorable a))
+       (if m
+         (let (,@#1=(append (mapcar #`,`(,(lol:symb "$" a1) (trivia:match (#~d/(format nil "(~a)" m)/r3 ,g!s) ((list a b c) (case ',a1 (\` a) (& b) (\' c))))) '(\` & \'))
+                            (mapcar #`,`(,(lol:symb "$" a1) (aref a (1- ,a1))) (loop for i from 1 to top collect i))))
            (declare (ignorable ,@(mapcar #'car #1#)))
            ,conseq)
          ,altern))))
