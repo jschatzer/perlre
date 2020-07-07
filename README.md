@@ -10,6 +10,10 @@ Can be useful for code brevity in regex heavy programs.
 
 ### Synopsis:
 ```
+1)
+(set-dispatch-macro-character #\# #\~ 'perlre:|#~-reader|)
+
+2)
 (#~s/regex/substitution/imsxge string)
 (#~m/regex/[modifier] string)
 (#~d/regex/[modifier] string) 
@@ -18,7 +22,8 @@ Can be useful for code brevity in regex heavy programs.
 (whenmatch test conseq*)
 (match string clause*) ; a clause (test conseq) e.g (#~m/(regex)/ (list $1))
 
-  Some examples:
+
+Some examples:
 
   ; output of both is "h*a*nn*a*" 
   (let ((stg "hanna")
@@ -54,3 +59,15 @@ Can be useful for code brevity in regex heavy programs.
 
 ```
 See test.lisp for other examples.
+
+;;;; 1.5.19 ;;;;;;;;;
+vim syntax/color
+in ~/.vim/sytax/lisp.vim I have this regex to see the whole expressin in green 
+syn match lispPerlre "#\~s\(.\).\{-}\1.\{-}\1\w*"
+and 
+hi lispPerlre ctermfg=green
+in ./vim/colors/self.vim
+
+in vimre 
+syntyx
+color

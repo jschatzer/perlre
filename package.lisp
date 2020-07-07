@@ -3,5 +3,5 @@
 (defpackage #:perlre
   (:nicknames pre)
   (:use #:cl)
-  (:export ifmatch whenmatch match))
+  (:export |#~-reader| ifmatch whenmatch match))
 

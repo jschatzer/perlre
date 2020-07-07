@@ -5,8 +5,6 @@
 ;-----------------------------------------------------------------------------
 
 (in-package #:perlre)
-;(named-readtables:in-readtable lol:lol-syntax)
-;(set-dispatch-macro-character #\# #\` 'lol:|#`-reader|)
 
 (defun segment-reader (s c n)
   "evaluation with / / delimiters, no evaluation with any other corresponding delimiter"
@@ -20,6 +18,7 @@
   "modifiers: i m s x g e r and digits"
   (coerce (loop for c = (read-char s) while (alphanumericp c) collect c finally (unread-char c s)) 'string))
 
+;a1 reg regex, a2 rpl replacement, m modifiers: ev rename  s/a1/a2/m
 (lol:defmacro! sub (o!a o!m)
   ``(lambda (,',g!s) 
         (let ((a1 ,(car ,g!a)) (a2 ,(cadr ,g!a)) (m ,,g!m))
@@ -34,7 +33,7 @@
   ``(lambda (,',g!s)
       (cond 
         ((string= "" ,,g!m) (ppcre:scan-to-strings ,(car ,g!a) ,',g!s))
-        ((find "g" ,,g!m :test 'string=) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s)) 
+        ((find #\g ,,g!m) (ppcre:all-matches-as-strings (format nil "(?~a)~a" (remove #\g ,,g!m) ,(car ,g!a)) ,',g!s)) 
         (t (ppcre:scan-to-strings (format nil "(?~a)~a" ,,g!m ,(car ,g!a)) ,',g!s)))))
 
 (lol:defmacro! div (o!a o!m)
@@ -55,6 +54,7 @@
     (t (error "Unknown #~~ mode character"))))
 
 ;----------- o -------------------- o --------------------- o ------------------------
+
 (set-dispatch-macro-character #\# #\~ '|#~-reader|)
 
 ;orig

@@ -1,6 +1,6 @@
 ;test.lisp
-(defpackage test (:use cl prove perlre))
-(in-package test)
+(defpackage test-perlre (:use cl prove perlre))
+(in-package test-perlre)
 
 #|============================================================================================
 Rules:
@@ -555,6 +555,32 @@ replace all  ’  with '       <----------------
 
 
 (finalize)
+
+
+;SOME USAGE EXAMPLES
+(plan 2)
+
+; 2.12.2019
+;remove empty lines
+(is (#~s'^\s*''gm
+"
+
+ab
+
+cd
+
+ef") 
+
+"ab
+cd
+ef")
+
+
+; truncate a string
+(is (#~s'(?<=.{12}).*'' "alkagjkdgjldgjadflkgjaklf;gjalga;gk") "alkagjkdgjld")
+
+(finalize)
+
 
 #|------------------------------------------------------------------
 20.9.2018
